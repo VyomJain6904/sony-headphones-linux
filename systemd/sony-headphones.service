@@ -1,0 +1,23 @@
+[Unit]
+Description=Sony Headphones control service
+Documentation=https://github.com/VyomJain6904/sony-headphones-omarchy
+After=bluetooth.target dbus.service
+Wants=bluetooth.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/sony-headphonesd
+Restart=on-failure
+RestartSec=2s
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictAddressFamilies=AF_UNIX AF_BLUETOOTH
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+
+[Install]
+WantedBy=default.target
