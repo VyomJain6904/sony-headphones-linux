@@ -1,0 +1,38 @@
+# Native build outputs and fetched source dependencies
+/build/
+/.deps/
+/dist/
+/CMakeCache.txt
+/CMakeFiles/
+/Testing/
+/cmake_install.cmake
+/CTestTestfile.cmake
+/compile_commands.json
+
+# Coverage and profiling output
+/coverage/
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+
+# Generated repository analysis
+/graphify-out/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system files
+/.idea/
+/.vscode/
+*.user
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs and temporary files
+*.log
+*.tmp

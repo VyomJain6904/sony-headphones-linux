@@ -1,0 +1,16 @@
+---
+description: Native C++ service, protocol, IPC, and performance rules
+globs:
+  - "native/**/*.{cpp,hpp}"
+  - "CMakeLists.txt"
+  - "native/CMakeLists.txt"
+  - "scripts/**/*.sh"
+alwaysApply: false
+---
+
+- Target C++20 and use RAII for sockets, D-Bus messages, libmdr handles, and temporary files.
+- Keep the daemon single-threaded unless measurements justify concurrency.
+- Publish state atomically only after a semantic change; do not poll by spawning commands.
+- Place the Unix socket under `XDG_RUNTIME_DIR` with mode `0600` and state under `XDG_STATE_HOME` with private directories.
+- Validate every IPC argument and return actionable, single-line errors.
+- Pin libmdr by commit and keep BlueZ and D-Bus as system-owned dependencies.

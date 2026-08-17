@@ -1,0 +1,10 @@
+---
+description: Core repository safety, scope, and verification rules
+alwaysApply: true
+---
+
+- Follow `AGENTS.md`, `SPEC.md`, and the versioned schemas.
+- Do not add Python, a second Quickshell process, root requirements, firmware updates, cloud/account features, tracking, factory reset, or 360 Reality Audio.
+- Use feature discovery rather than model-name assumptions.
+- Document dependencies and update tests, `TASKS.md`, and `CHANGELOG.md` with behavior changes.
+- Do not describe untested hardware as supported without qualification.
