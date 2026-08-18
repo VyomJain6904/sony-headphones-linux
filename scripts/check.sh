@@ -7,6 +7,7 @@ project_dir="$(cd -- "$script_dir/.." && pwd)"
 jq empty "$project_dir/manifest.json"
 node "$project_dir/tests/model.test.js"
 bash -n "$project_dir"/scripts/*.sh
+"$script_dir/check-aur.sh"
 
 expected_id="io.github.vyomjain6904.sony-headphones"
 actual_id="$(jq -r '.id' "$project_dir/manifest.json")"

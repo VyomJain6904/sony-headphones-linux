@@ -20,7 +20,7 @@
 - Local changes: the one-line patch shipped by the pinned libmdr source
 - Notice: `licenses/fmt-LICENSE`
 
-The build verifies both Git revisions and checks the tracked libmdr patch before compilation.
+The developer build verifies both Git revisions and checks the tracked libmdr patch before compilation. The AUR build instead downloads commit-addressed archives through `makepkg`, verifies SHA-256 hashes before extraction, applies both reviewed patches during `prepare()`, and configures CMake with dependency fetching fully disconnected.
 
 ## System-owned dynamic dependencies
 

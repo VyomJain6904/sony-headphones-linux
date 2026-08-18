@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.vyomjain6904.sony-headphones",
   "name": "Sony Headphones",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Vyom Jain",
   "license": "MIT",
   "description": "Capability-driven controls and battery status for Sony Sound Connect headphones.",

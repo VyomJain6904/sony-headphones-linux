@@ -82,7 +82,7 @@ sudo apt install build-essential cmake git pkg-config jq libdbus-1-dev libblueto
 Omarchy/Arch package names:
 
 ```sh
-sudo pacman -S --needed base-devel cmake git pkgconf jq dbus bluez bluez-libs nodejs
+omarchy pkg add base-devel cmake git pkgconf jq dbus bluez bluez-libs nodejs
 ```
 
 The service and plugin never invoke `sudo`.
@@ -120,29 +120,19 @@ The build script fetches exactly the libmdr commit recorded in `scripts/libmdr-v
 
 ## Install on Omarchy
 
-After building on the Omarchy machine:
+The graphical plugin and native companion have separate ownership:
+
+- Omarchy clones the QML plugin into the current user's configuration directory.
+- The prepared AUR package installs the daemon, CLI, user service, documentation, and license notices under `/usr`.
+
+The stable AUR package is prepared but is not listed yet. Until its AUR page is published, use the source installation below.
+
+### Source installation available now
+
+Install the required Arch build packages, clone the plugin, build its pinned native dependencies, and enable it:
 
 ```sh
-./scripts/install.sh
-systemctl --user enable --now sony-headphones.service
-omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
-```
-
-Validate the copied plugin:
-
-```sh
-PLUGIN_DIR="$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
-omarchy plugin validate "$PLUGIN_DIR"
-./scripts/qml-lint.sh
-```
-
-The plugin ID is `io.github.vyomjain6904.sony-headphones`. The installer copies only runtime plugin files when run from a development checkout and safely detects when the repository is already the git-managed plugin checkout.
-
-### Install from the published Git repository
-
-Omarchy Quattro installs third-party plugins by cloning a Git repository whose root contains `manifest.json`. The Omarchy command deliberately does not run install hooks, plugin code, `sudo`, or this project's native build, so the daemon must be built explicitly:
-
-```sh
+omarchy pkg add base-devel cmake git pkgconf jq dbus bluez bluez-libs nodejs
 omarchy plugin add https://github.com/VyomJain6904/sony-headphones-omarchy.git
 cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
 ./scripts/build.sh
@@ -151,9 +141,34 @@ systemctl --user enable --now sony-headphones.service
 omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
 ```
 
-Review the repository before enabling it. QML plugins run unsandboxed inside the long-lived Omarchy shell, while this project's daemon runs separately as an unprivileged user service.
+Review the repository before enabling it. QML plugins run unsandboxed inside Omarchy's long-lived shell. The separate native service runs without root, setuid, or a broad D-Bus policy.
 
-Update a Git-managed installation with:
+Confirm that both halves are healthy:
+
+```sh
+systemctl --user status sony-headphones.service
+sony-headphonesctl status
+omarchy plugin validate "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
+```
+
+The plugin ID is `io.github.vyomjain6904.sony-headphones`. `scripts/install.sh` safely detects a Git-managed plugin checkout and does not copy files over it.
+
+### AUR installation after the listing is published
+
+The recommended package flow will be:
+
+```sh
+omarchy pkg aur add sony-headphones-omarchy
+systemctl --user enable --now sony-headphones.service
+omarchy plugin add https://github.com/VyomJain6904/sony-headphones-omarchy.git
+omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
+```
+
+The AUR contains a source build description, not a project-supplied binary. Its immutable application, libmdr, and fmt archives are downloaded and verified by `makepkg`; the compilation stage is fully disconnected from the network.
+
+## Update
+
+For a source installation, update the QML checkout and rebuild the native companion:
 
 ```sh
 omarchy plugin update io.github.vyomjain6904.sony-headphones
@@ -163,14 +178,46 @@ cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
 systemctl --user restart sony-headphones.service
 ```
 
-Remove a local-copy installation with `./scripts/uninstall.sh`. For a Git-managed installation, run that script first to remove the native service and binaries, then run `omarchy plugin remove io.github.vyomjain6904.sony-headphones` from outside the checkout.
+After the AUR listing is live, update the native package with the normal Omarchy/AUR package workflow, restart the user service, and update the plugin independently:
+
+```sh
+omarchy update
+systemctl --user restart sony-headphones.service
+omarchy plugin update io.github.vyomjain6904.sony-headphones
+```
+
+## Uninstall
+
+For the current source installation, run the uninstaller from the plugin checkout, move outside that checkout, and let Omarchy remove it:
+
+```sh
+cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
+./scripts/uninstall.sh
+cd "$HOME"
+omarchy plugin remove io.github.vyomjain6904.sony-headphones
+```
+
+For a future AUR installation, remove the two independently owned parts:
+
+```sh
+systemctl --user disable --now sony-headphones.service
+omarchy pkg drop sony-headphones-omarchy
+omarchy plugin remove io.github.vyomjain6904.sony-headphones
+```
+
+Both removal paths preserve the private state directory by default. Delete it only when its last status/error data is no longer wanted:
+
+```sh
+rm -r -- "$HOME/.local/state/sony-headphones"
+```
 
 ### Publication requirements
 
-- Keep `manifest.json` at the repository root, validate it on current Omarchy, and keep the permanent namespaced ID.
-- Publish a reviewable public Git repository. Current Omarchy Quattro distributes third-party plugins directly from Git; there is no separate Marketplace submission step in the current plugin workflow.
-- Match the manifest version to a SemVer tag, update `CHANGELOG.md`, and attach checksums/notices to any future binary artifacts.
-- Preserve immutable dependency pins, the reviewed libmdr patch, license notices, and complete runtime/build dependency documentation.
+- Keep the public repository, root `manifest.json`, README, MIT license, safe installation, and safe removal paths reviewable.
+- Match the manifest and CMake versions to the signed SemVer tag, then validate the exact release tree.
+- Submit the GitHub repository, category, tags, optional preview, and maintainer notes through the Omarchy Marketplace issue form. Automated listing validation checks the current commit, but it does not audit plugin security.
+- Keep pacman ownership limited to native files under `/usr`; never make a package script write into a user's home or Omarchy plugin checkout.
+- Preserve immutable dependency pins, reviewed patches, license notices, and complete runtime/build dependency documentation.
 - Report compatibility only from recorded hardware evidence. A release must not broaden the WH-1000XM5 result into an all-model claim.
 - Run every check in [docs/VERIFICATION.md](docs/VERIFICATION.md), test install/update/removal from a clean user account, and review all QML as unsandboxed shell code before publishing.
 

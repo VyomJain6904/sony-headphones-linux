@@ -84,3 +84,28 @@ Still required before a stable multi-device release:
 - Bluetooth power-cycle, BlueZ restart, sleep/resume, and soak testing
 - MDR v1 over-ear and true-wireless hardware evidence
 - Release binary/license review and reproducible packaging if binaries are distributed
+
+## 2026-08-19 — v0.2.1 release and AUR preparation
+
+Environment:
+
+- Omarchy Quattro 4.0.0-1 on Arch Linux x86_64
+- GCC 16.2.1, CMake 4.4.2, makepkg 7.1.0, D-Bus 1.16.2, and BlueZ 5.87
+- The same pinned libmdr and fmt revisions recorded above
+
+Passed before tagging:
+
+- Manifest/CMake/AUR version consistency for `0.2.1`
+- Bash syntax and ShellCheck, including the new AUR consistency checker
+- Generated `.SRCINFO` comparison with the tracked file
+- `./scripts/check.sh`
+- `./scripts/build.sh --without-libmdr` and all four native CTest cases
+- `./scripts/build.sh` with the pinned hardware backend and all four native CTest cases
+- Mock daemon/CLI end-to-end, concurrent-client, permission, and stale-socket checks
+- ASan/UBSan build and all four native CTest cases
+- `omarchy plugin validate "$PWD"`
+- QML lint with only the previously documented dynamic Omarchy/Quickshell metadata warnings
+- Offline package-equivalent build from the downloaded libmdr and fmt commit archives, including both reviewed patches, `FETCHCONTENT_FULLY_DISCONNECTED=ON`, application link, and all four native CTest cases
+- `./scripts/release-check.sh`
+
+The exact tag archive checksum, `makepkg --verifysource`, complete `makepkg` package build, package file inspection, and `namcap` results are recorded on `main` after the signed tag exists. No AUR or Marketplace listing was submitted automatically.

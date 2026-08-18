@@ -1,44 +1,114 @@
 # Publishing Guide
 
-This project is distributed as a public Git repository with an Omarchy schema-v1 plugin manifest at its root. Omarchy Quattro currently installs third-party plugins directly from Git; it does not use a separate Marketplace submission or package-upload workflow.
+Sony Headphones has two complementary distribution channels:
 
-The authoritative references are Omarchy's [shell plugin documentation](https://github.com/basecamp/omarchy/blob/quattro/shell/README.md), [engineering contract](https://github.com/basecamp/omarchy/blob/quattro/AGENTS.md), and the `omarchy plugin validate` command shipped by the target Omarchy release.
+- The Omarchy Marketplace lists the public Git repository and installs the QML plugin into the current user's plugin directory.
+- The stable `sony-headphones-omarchy` AUR package builds and installs the native daemon, CLI, and systemd user service under pacman ownership.
 
-## Manifest requirements
+Neither channel is a security sandbox. The maintainer remains responsible for the code, assets, dependency pins, documentation, license compliance, safe installation, and safe removal.
 
-Before every release, `manifest.json` must satisfy all current validator rules:
+## Omarchy Marketplace
 
-- `schemaVersion` is the JSON number `1`.
-- `id`, `name`, `version`, `kinds`, and `entryPoints` exist; the ID remains `io.github.vyomjain6904.sony-headphones`.
-- The ID contains only letters, numbers, `.`, `_`, and `-`, contains no `..`, and does not use the reserved `omarchy.*` namespace.
-- `kinds` is a non-empty array. This repository declares only `bar-widget`.
-- `entryPoints.barWidget` is a safe, existing relative path with no `..` component.
-- `barWidget.defaultSection`, when present, is `left`, `center`, or `right`.
-- No symlink exists anywhere in the plugin tree outside `.git`.
-- The entry-point QML is an `Item`/Omarchy `BarWidget`, never a second `ShellRoot` or Quickshell process.
+### Repository checklist
 
-Run the validator from a clean checkout before building, and again from the release tree:
+Before submitting the listing, confirm that the repository is public and its root contains:
+
+- a current, valid `manifest.json`;
+- the entry-point QML declared by the manifest;
+- a README with dependencies, installation, updating, removal, limitations, and screenshots;
+- the MIT license and third-party notices;
+- installation and removal code that does not require root or launch a second Quickshell process.
+
+The optional dark and light previews under `docs/screenshots/` are already optimized for the repository. The Marketplace may optimize its own preview copy.
+
+### Manifest contract
+
+This repository intentionally declares the `bar-widget` kind supported by Omarchy Quattro:
+
+```json
+{
+  "schemaVersion": 1,
+  "id": "io.github.vyomjain6904.sony-headphones",
+  "name": "Sony Headphones",
+  "version": "0.2.1",
+  "author": "Vyom Jain",
+  "description": "Capability-driven controls and battery status for Sony Sound Connect headphones.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  }
+}
+```
+
+Keep the permanent ID, version, kind, and entry point synchronized with the implementation. Validate the release checkout with:
 
 ```sh
 omarchy plugin validate "$PWD"
+./scripts/qml-lint.sh
 ```
 
-On the release host, `./scripts/release-check.sh` combines these checks with ShellCheck, mock IPC lifecycle coverage, and ASan/UBSan.
+The QML entry point must remain an `Item`/Omarchy `BarWidget`, not a `ShellRoot`. The plugin must use the existing Omarchy shell process.
 
-## Native companion requirements
+### Submission fields
 
-`omarchy plugin add` only clones, validates, discovers, and optionally enables QML. It intentionally runs no plugin code, native build, install hook, or privileged command. Publishing this repository therefore also requires clear manual steps for the C++ daemon:
+Use these values in the Marketplace issue form:
 
-- Document every build/runtime package for Omarchy and Debian.
-- Build libmdr/fmt only from the immutable commits in `scripts/libmdr-version.sh`.
-- Keep the reviewed patch under `patches/` and fail the build if it does not apply cleanly.
-- Install only to the user's `~/.local/bin`, user systemd directory, and user plugin directory.
-- Never require root, setuid, a broad D-Bus policy, Python, Electron, or another Quickshell process.
-- Preserve the 15-second on-demand RFCOMM release behavior so Sony's phone app can regain control.
+- Repository: `https://github.com/VyomJain6904/sony-headphones-omarchy`
+- Category: `Audio`
+- Suggested tags: `sony`, `headphones`, `bluetooth`, `audio`, `noise-cancelling`
+- Preview: `docs/screenshots/panel-dark.png` or both repository screenshots if the form accepts multiple files
 
-The install, update, and removal commands in `README.md` are part of the release contract. Test both layouts: a normal development checkout copied into the plugin directory and a repository cloned directly there by `omarchy plugin add`.
+Paste this into **Maintainer notes**:
 
-## Required release evidence
+> This hardware-alpha plugin has a QML bar widget plus a native C++ companion. Omarchy installs and validates the QML repository but intentionally does not run the native build or installer. Users must build/install the daemon and CLI from the pinned sources, or install the separately prepared AUR package when that listing becomes available, then enable `sony-headphones.service` as an unprivileged user service. No root service, setuid binary, broad D-Bus policy, Python, Electron, telemetry, network runtime, or second Quickshell process is used. The daemon opens RFCOMM on demand and releases it after the panel's idle deadline so Sony's phone app can regain control. Controls are exposed only from reported protocol capabilities. Hardware evidence currently covers WH-1000XM5 firmware 2.5.1; other models are not claimed as tested. Removal instructions cover the native service, binaries/package, QML checkout, and optional private state.
+
+Automated Marketplace validation checks the submitted commit before a maintainer approves the listing. Submit only after the signed tag, final checks, and public release are visible. The submission itself remains manual.
+
+## AUR package
+
+Publishing to the AUR is free and uses a separate AUR account plus an SSH public key. GitHub authentication does not authenticate with `aur.archlinux.org`. The AUR receives package metadata, not built binaries.
+
+The reviewed package files live under `packaging/aur/`. The package owns:
+
+```text
+/usr/bin/sony-headphonesd
+/usr/bin/sony-headphonesctl
+/usr/lib/systemd/user/sony-headphones.service
+/usr/share/licenses/sony-headphones-omarchy/
+/usr/share/doc/sony-headphones-omarchy/
+```
+
+It must never write to a user's home, enable a user service as root, edit Omarchy's configuration, or install the QML checkout. After package installation, each user explicitly runs:
+
+```sh
+systemctl --user enable --now sony-headphones.service
+```
+
+### Package source policy
+
+The stable package builds from the signed version tag and declares three immutable archives in `source=()`:
+
+- Sony Headphones for Omarchy `v0.2.1`;
+- SonyHeadphonesClient/libmdr commit `db0ae2574d8f8e1407e8ea28a7ee87db9dde1c24`;
+- fmt commit `407c905e45ad75fc29bf0f9bb7c5c2fd3475976f`.
+
+All archives require SHA-256 hashes. The libmdr and fmt patches are applied during `prepare()`. CMake receives `FETCHCONTENT_FULLY_DISCONNECTED=ON` and the already verified fmt source directory, so `build()` cannot fetch undeclared dependencies.
+
+After creating the upstream tag, calculate the application archive hash, update `PKGBUILD`, regenerate `.SRCINFO`, and run:
+
+```sh
+./scripts/check-aur.sh
+cd packaging/aur
+makepkg --verifysource
+makepkg --cleanbuild --syncdeps
+namcap PKGBUILD sony-headphones-omarchy-*.pkg.tar.zst
+```
+
+Also run `extra-x86_64-build` from `devtools` when a clean Arch chroot is available. Inspect the resulting file list and dependency report before copying `PKGBUILD`, `.SRCINFO`, and `sony-headphones-omarchy.install` into the separate AUR Git repository.
+
+Do not submit the AUR package during this preparation release. Submission follows a final maintainer review and is documented in `packaging/aur/README.md`.
+
+## Release gate
 
 Run and record:
 
@@ -51,34 +121,26 @@ ctest --test-dir build/native --output-on-failure
 omarchy plugin validate "$PWD"
 ```
 
-On a live Omarchy session, use only the existing shell process and verify:
+On a live Omarchy session, use only the existing shell process and verify plugin enable/disable, bar/panel behavior, keyboard and mouse interaction, dark/light live theming, overflow scrolling, daemon restart, Git update/removal, and idempotent reinstall. Test protocol changes with `sony-headphonesd --mock` before real hardware.
 
-- bar icon, tooltip, left-click panel, right-click shortcut, Escape, keyboard navigation, summon/hide, overflow scrollbar, and multiple screen edges;
-- live dark/light theme changes, font changes, spacing scale, popup padding, controls, and borders;
-- plugin enable/disable, shell restart, daemon restart, Git add/update/remove, and idempotent uninstall/reinstall;
-- mock state and every mock command before touching hardware;
-- hardware reads before writes, one reversible setting at a time, state restoration, reconnect, and RFCOMM idle release.
-
-Every hardware report must add model, firmware, transport, protocol generation, read functions, write functions, and regressions to `docs/COMPATIBILITY.md`. Do not turn the single WH-1000XM5 result into an all-Sony claim.
+Every hardware report must add its model, firmware, transport, protocol generation, reads, writes, restoration, and regressions to `docs/COMPATIBILITY.md`. Do not turn the single WH-1000XM5 result into an all-Sony claim.
 
 ## Version and source release
 
-1. Finish the scoped release tasks and update `SPEC.md` before any public behavior change.
-2. Update `CHANGELOG.md`, `TASKS.md`, `docs/COMPATIBILITY.md`, and `docs/VERIFICATION.md`.
-3. Set the SemVer value in `manifest.json`; the Git tag must match it (for example, manifest `0.2.0`, tag `v0.2.0`).
-4. Review the complete diff as unsandboxed shell code and native Bluetooth code.
-5. Complete dependency/license/security review. Keep both MIT notices and document obligations before attaching a native binary.
-6. Create a signed tag and public source release. Source-only is the initial distribution method; binary packages/checksums remain separate release work.
-7. Test the public URL with `omarchy plugin add <url>` from a clean user account before announcing it.
+1. Update `SPEC.md` before changing public behavior or distribution contracts.
+2. Update `CHANGELOG.md`, `TASKS.md`, compatibility evidence, verification evidence, README, and release notes.
+3. Keep the manifest, CMake, AUR, changelog, and release-note versions identical.
+4. Review the complete diff as unsandboxed QML and native Bluetooth code.
+5. Run the repository and live release gates.
+6. Create and verify a signed `v0.2.1` tag, push it, and wait for tag CI.
+7. Hash the immutable GitHub tag archive, replace the temporary application checksum in the AUR template, regenerate `.SRCINFO`, then validate and commit that packaging finalization on `main`.
+8. Publish the source-only GitHub prerelease. Do not attach native binaries without a separate reproducibility and license review.
+9. Manually submit the Omarchy Marketplace listing. Keep the AUR submission prepared but unpublished until explicitly approved.
 
-Omarchy updates Git-managed plugins by showing a diff and fast-forwarding the checkout. Avoid force-pushing published release history. If the native source changes, release notes must tell users to rebuild, rerun `scripts/install.sh`, and restart the user service after `omarchy plugin update`.
+Avoid force-pushing published release history. If native source changes, release notes must tell source-install users to rebuild and reinstall, while AUR users rebuild/update the package and restart their user service.
 
-The repository CI has two tiers: policy/model/no-libmdr checks on every push and pull request, plus a full pinned Bluetooth-backend build on tags or manual dispatch. CI supplements but does not replace current-Omarchy QML validation, visual checks, or recorded hardware evidence.
+## Approved compatibility wording
 
-## Security and compatibility wording
+“Designed for Sony Sound Connect-compatible headphones using supported MDR protocols; hardware-tested on the devices listed in the compatibility matrix.”
 
-Plugin QML runs unsandboxed inside Omarchy's long-lived shell, so users must be told to review the repository before enabling it. The native service has access to the system BlueZ bus and the connected headset but remains unprivileged, makes no network requests, and excludes Bluetooth addresses from public state.
-
-Approved wording: “Designed for Sony Sound Connect-compatible headphones using supported MDR protocols; hardware-tested on the devices listed in the compatibility matrix.”
-
-Do not claim universal compatibility, Sony affiliation, cloud parity, or support for firmware updates, 360 Reality Audio, account/location functions, factory reset, or other explicitly excluded features.
+Do not claim universal compatibility, Sony affiliation, cloud parity, firmware updating, 360 Reality Audio, account/location functions, factory reset, or other excluded features.

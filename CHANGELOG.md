@@ -4,10 +4,18 @@ All notable changes will be documented here. The format follows Keep a Changelog
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-19
+
+### Added
+
+- Add stable AUR packaging for the native daemon, CLI, and systemd user service, with every source archive pinned and checksummed.
+- Add complete source, Marketplace, AUR, update, and uninstall guidance plus paste-ready Marketplace maintainer notes.
+
 ### Changed
 
 - Add labeled, theme-aware icons to the Noise cancelling, Ambient, and Off sound-control buttons.
 - Reduce the panel width and maximum height slightly while preserving control and text sizing.
+- Split distribution ownership cleanly: pacman owns native companion files under `/usr`, while Omarchy owns the per-user QML checkout.
 
 ### Fixed
 
@@ -50,5 +58,6 @@ All notable changes will be documented here. The format follows Keep a Changelog
 - Bluetooth MAC addresses are excluded from the QML-facing state document.
 - Firmware flashing, factory reset, cloud/account functions, tracking, and 360 Reality Audio are explicitly out of scope.
 
-[Unreleased]: https://github.com/VyomJain6904/sony-headphones-omarchy/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/VyomJain6904/sony-headphones-omarchy/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/VyomJain6904/sony-headphones-omarchy/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/VyomJain6904/sony-headphones-omarchy/releases/tag/v0.2.0

@@ -2,6 +2,11 @@
 /build/
 /.deps/
 /dist/
+/packaging/aur/pkg/
+/packaging/aur/src/
+/packaging/aur/*.pkg.tar.*
+/packaging/aur/*.tar.gz
+/packaging/aur/.SRCINFO.generated
 /CMakeCache.txt
 /CMakeFiles/
 /Testing/

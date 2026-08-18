@@ -85,3 +85,20 @@ The wrapper selects Qt 6 and reproduces Quickshell's special `qs.Ui`/`qs.Commons
 `omarchy plugin add <git-url>` clones the repository directly to `~/.config/omarchy/plugins/<id>`. Omarchy validates and discovers QML but intentionally runs no native installer hook. Build and install the daemon explicitly from that checkout. `scripts/install-plugin.sh` detects this layout and does not copy files over the source checkout.
 
 Run `scripts/uninstall.sh` before `omarchy plugin remove`. The script removes the user service and native binaries but preserves a git-managed checkout so Omarchy can remove it cleanly.
+
+## AUR package workflow
+
+The stable package under `packaging/aur/` is deliberately separate from the source installer. Pacman owns the native executables and systemd user unit under `/usr`; Omarchy owns the QML checkout under the current user's configuration directory.
+
+The package's `source=()` contains the application release, pinned libmdr commit, and pinned fmt commit. `prepare()` applies both reviewed patches, and `build()` configures CMake with `FETCHCONTENT_FULLY_DISCONNECTED=ON`. Do not replace this with `scripts/build.sh`, because that developer script may fetch a missing dependency before compilation.
+
+After the upstream tag and archive checksum exist:
+
+```sh
+./scripts/check-aur.sh
+cd packaging/aur
+makepkg --verifysource
+makepkg --cleanbuild --syncdeps
+```
+
+Generate `.SRCINFO` from the final PKGBUILD and commit both whenever package metadata changes. Use a clean chroot and `namcap` before AUR submission; see `packaging/aur/README.md`.
