@@ -6,16 +6,27 @@ project_dir="$(cd -- "$script_dir/.." && pwd)"
 
 jq empty "$project_dir/manifest.json"
 node "$project_dir/tests/model.test.js"
+bash -n "$project_dir"/scripts/*.sh
 
 expected_id="io.github.vyomjain6904.sony-headphones"
 actual_id="$(jq -r '.id' "$project_dir/manifest.json")"
 entry="$(jq -r '.entryPoints.barWidget' "$project_dir/manifest.json")"
+manifest_version="$(jq -r '.version' "$project_dir/manifest.json")"
+cmake_version="$(sed -nE 's/^project\(sony-headphones-omarchy VERSION ([0-9]+\.[0-9]+\.[0-9]+) LANGUAGES CXX\)$/\1/p' "$project_dir/CMakeLists.txt")"
 if [ "$actual_id" != "$expected_id" ]; then
   printf 'Manifest ID mismatch: %s\n' "$actual_id" >&2
   exit 1
 fi
 if [ ! -f "$project_dir/$entry" ]; then
   printf 'Manifest entry point not found: %s\n' "$entry" >&2
+  exit 1
+fi
+if [ -z "$cmake_version" ] || [ "$manifest_version" != "$cmake_version" ]; then
+  printf 'Manifest/CMake version mismatch: manifest=%s cmake=%s\n' "$manifest_version" "${cmake_version:-missing}" >&2
+  exit 1
+fi
+if find "$project_dir/scripts" -maxdepth 1 -type f -name '*.sh' ! -perm -0100 -print -quit | grep -q .; then
+  printf 'Every script under scripts/ must be executable.\n' >&2
   exit 1
 fi
 if find "$project_dir" -path "$project_dir/build" -prune -o -path "$project_dir/.deps" -prune -o -type l -print -quit | grep -q .; then

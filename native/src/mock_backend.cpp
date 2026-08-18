@@ -30,7 +30,9 @@ class MockBackend final : public Backend {
     c.autoPause = true;
     state_.noise = {"anc", 10, false, false, "standard"};
     state_.speakToChat = {false, "auto", "medium"};
-    state_.equalizer = {"bright", 2, {-2, -1, 0, 1, 2}, true, "ultimate"};
+    state_.equalizer = {
+      "bright", {"off", "bright", "bass", "treble", "speech"}, 2, {-2, -1, 0, 1, 2}, true, "ultimate"
+    };
     state_.playback = {"playing", 42};
     state_.connection = {"quality"};
   }
@@ -60,6 +62,9 @@ class MockBackend final : public Backend {
         state_.equalizer.dseeEnabled = command.value == "on";
         break;
       case CommandKind::EqualizerPreset:
+        if (std::find(state_.equalizer.availablePresets.begin(), state_.equalizer.availablePresets.end(), command.value)
+            == state_.equalizer.availablePresets.end())
+          return {false, "Equalizer preset is not reported by this device"};
         state_.equalizer.preset = command.value;
         break;
       case CommandKind::ConnectionPriority:

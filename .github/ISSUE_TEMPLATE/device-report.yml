@@ -1,0 +1,53 @@
+name: Device compatibility report
+description: Submit tested Sony headphone protocol and feature evidence.
+title: "[Device]: "
+labels: [compatibility]
+body:
+  - type: markdown
+    attributes:
+      value: A model name alone is not compatibility evidence. Record what was actually read and written, and restore every reversible setting after testing.
+  - type: input
+    id: model
+    attributes:
+      label: Exact model and region
+      placeholder: WH-1000XM5 (India)
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware version
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Linux environment
+      description: Include Omarchy/distribution, BlueZ, plugin version, transport, active codec, and MDR protocol generation.
+    validations:
+      required: true
+  - type: textarea
+    id: reads
+    attributes:
+      label: Verified reads
+      description: List only values you observed successfully.
+    validations:
+      required: true
+  - type: textarea
+    id: writes
+    attributes:
+      label: Verified reversible writes
+      description: Include before/change/restored values and failures. Write "none" if no writes were attempted.
+    validations:
+      required: true
+  - type: textarea
+    id: regressions
+    attributes:
+      label: Reconnect, idle-release, or regression notes
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety and privacy
+      options:
+        - label: I restored every changed setting and removed Bluetooth addresses and personal identifiers.
+          required: true

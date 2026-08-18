@@ -1,7 +1,7 @@
 # Product and Technical Specification
 
-Status: draft for `0.1.0`
-Last updated: 2026-08-17
+Status: hardware alpha for `0.2.0`
+Last updated: 2026-08-19
 
 ## 1. Product goal
 
@@ -35,7 +35,7 @@ Development runtime:
 - Publish a versioned state document atomically.
 - Expose a private, versioned, line-oriented command socket.
 - Render battery and connection state in the bar and panel.
-- Control ANC, ambient sound, ambient level, focus on voice, Speak-to-Chat, DSEE, equalizer preset, playback, volume, and connection priority when supported.
+- Control ANC, ambient sound, ambient level, focus on voice, Speak-to-Chat, DSEE, volume, and connection priority when supported.
 - Provide an idle control-channel release policy.
 - Support mouse and keyboard panel interaction.
 - Provide a deterministic mock backend.
@@ -63,7 +63,7 @@ Development runtime:
 
 ### 4.1 Bar widget
 
-- Shows a compact Sony/headphone label and best available battery value.
+- Shows a compact Nerd Font headphone glyph; battery and mode details stay in the tooltip and panel.
 - Indicates disconnected, connecting, ready, or error state without animation loops.
 - Left click toggles the panel.
 - It remains visible by default while disconnected so setup errors are discoverable; users may hide it through manifest settings.
@@ -75,8 +75,11 @@ Development runtime:
 - Sound: only supported noise modes, ambient slider, focus-on-voice, and adaptive controls.
 - Conversation: Speak-to-Chat only when supported.
 - Equalizer: presets/DSEE and later custom bands only when supported.
-- Playback and system sections appear only when their capabilities exist.
+- The volume section appears only when its capability exists. Transport playback controls are not exposed in the panel.
 - Errors are short, actionable, and never expose raw packet data by default.
+- The panel consumes Omarchy's live `Color` and `Style` tokens, native controls, panel padding, and standard `ScrollView`; it must update without a shell restart when the theme changes.
+- Action buttons use content-sized native controls arranged in responsive rows whose contents are centered. Toggle rows, sliders, battery rows, and headings remain full-width.
+- Keyboard navigation follows Omarchy's cursor model: Up/Down traverses visible control groups; Left/Right selects actions or adjusts sliders; Enter/Space activates; hover synchronizes the cursor; Escape closes; and Tab/Shift+Tab retains cross-panel switching. Moving the cursor keeps its control visible in the scroll viewport.
 
 ### 4.3 Lifecycle
 
@@ -115,6 +118,7 @@ Top-level fields:
 - `battery`: main/left/right/case objects.
 - `capabilities`: booleans mapped from libmdr feature availability.
 - `noise`, `speak_to_chat`, `equalizer`, `playback`, and `connection` state.
+- `equalizer.available_presets`: optional array of setter-safe preset slugs. An absent or empty array means readers must display the current preset as state only and must not offer preset writes.
 - `last_error`: user-facing error string.
 
 Readers must reject newer schema versions rather than guessing. Missing fields in the same version use safe defaults.
@@ -140,13 +144,15 @@ ambient-level 1..20
 focus-on-voice on|off
 speak-to-chat on|off
 dsee on|off
-eq-preset <known-slug>
+eq-preset <reported-slug>
 connection quality|stable
 volume 0..100
 playback play|pause|next|previous
 ```
 
-The CLI is the only supported shell-facing client. It validates arguments before contacting the daemon.
+The CLI is the only supported shell-facing client. It validates argument shape before contacting the daemon, and the daemon rejects a preset that the current device state did not advertise in `equalizer.available_presets`.
+
+The v1 state and command schemas retain playback fields and commands for backward compatibility, but the Omarchy panel does not expose transport playback controls.
 
 ## 6. Native design
 

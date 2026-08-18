@@ -24,4 +24,4 @@ Firmware flashing and factory reset are not implemented. Pairing, unpairing, shu
 
 ## Reporting
 
-Do not open a public issue for a vulnerability that could expose local data or send unintended device commands. Report it privately to the repository owner with the affected version, reproduction steps, and impact. Avoid including Bluetooth addresses or raw protocol captures unless necessary and encrypted.
+Do not open a public issue for a vulnerability that could expose local data or send unintended device commands. Use [GitHub private vulnerability reporting](https://github.com/VyomJain6904/sony-headphones-omarchy/security/advisories/new) with the affected version, reproduction steps, and impact. Avoid including Bluetooth addresses or raw protocol captures unless necessary and encrypted.

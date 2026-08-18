@@ -38,7 +38,8 @@ void appendCapability(std::ostringstream& out, std::string_view name, bool value
 
 std::string jsonEscape(const std::string& value) {
   std::ostringstream out;
-  for (const unsigned char character : value) {
+  for (const char byte : value) {
+    const auto character = static_cast<unsigned char>(byte);
     switch (character) {
       case '\"': out << "\\\""; break;
       case '\\': out << "\\\\"; break;
@@ -120,7 +121,12 @@ std::string serializeState(const State& state) {
       << ",\"sensitivity\":\"" << jsonEscape(state.speakToChat.sensitivity)
       << "\",\"timeout\":\"" << jsonEscape(state.speakToChat.timeout) << "\"}"
       << ",\"equalizer\":{\"preset\":\"" << jsonEscape(state.equalizer.preset)
-      << "\",\"clear_bass\":" << state.equalizer.clearBass << ",\"bands\":[";
+      << "\",\"available_presets\":[";
+  for (std::size_t index = 0; index < state.equalizer.availablePresets.size(); ++index) {
+    if (index > 0) out << ',';
+    out << '\"' << jsonEscape(state.equalizer.availablePresets[index]) << '\"';
+  }
+  out << "],\"clear_bass\":" << state.equalizer.clearBass << ",\"bands\":[";
   for (std::size_t index = 0; index < state.equalizer.bands.size(); ++index) {
     if (index > 0) out << ',';
     out << state.equalizer.bands[index];

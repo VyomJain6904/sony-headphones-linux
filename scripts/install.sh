@@ -19,5 +19,6 @@ install -m 0644 "$project_dir/systemd/sony-headphones.service" "$unit_dir/sony-h
 "$script_dir/install-plugin.sh"
 
 systemctl --user daemon-reload
-printf '\nInstalled native binaries, user service, and plugin. Enable with:\n'
+printf '\nInstalled native binaries, user service, and plugin. Enable both with:\n'
 printf '  systemctl --user enable --now sony-headphones.service\n'
+printf '  omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right\n'

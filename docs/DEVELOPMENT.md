@@ -4,7 +4,7 @@
 
 Run `./scripts/check-deps.sh`. It only inspects the host and never installs packages.
 
-On the current Debian development machine, a no-libmdr build exercises state, IPC, mock behavior, and tests. The real backend additionally needs `libbluetooth-dev`. On Omarchy, install `bluez-libs`.
+On Omarchy, install `bluez-libs`; on Debian, install `libbluetooth-dev`. The no-libmdr build remains useful for deterministic state, command, and mock testing.
 
 Do not work around missing system development headers by committing extracted distribution packages or private BlueZ builds. BlueZ and D-Bus are system integration/security boundaries and should receive normal distribution updates.
 
@@ -22,7 +22,7 @@ Real backend:
 ./scripts/build.sh
 ```
 
-The latter clones the pinned libmdr commit into `.deps/`, configures it as its own top-level project, and links the resulting static libraries into this project's binaries. It is separate because the upstream project intentionally uses top-level CMake paths.
+The latter clones the pinned libmdr commit into `.deps/`, verifies and applies the tracked patch under `patches/`, configures it as its own top-level project, and links the resulting static libraries into this project's binaries. It is separate because the upstream project intentionally uses top-level CMake paths.
 
 Set `SONY_LIBMDR_SOURCE_DIR` to an already reviewed clone to avoid a network fetch:
 
@@ -75,7 +75,13 @@ The Debian host can parse JavaScript but does not provide Omarchy's `qs.Ui` impo
 
 ```sh
 omarchy plugin validate "$PWD"
-qmllint -I "$OMARCHY_PATH/shell" BarWidget.qml Panel.qml Service.qml
+./scripts/qml-lint.sh
 ```
 
-Never launch a standalone Quickshell instance for the plugin.
+The wrapper selects Qt 6 and reproduces Quickshell's special `qs.Ui`/`qs.Commons` import namespace in a temporary lint-only directory. Warnings caused by incomplete singleton property metadata are expected; unresolved imports or a nonzero exit are not. Never launch a standalone Quickshell instance for the plugin.
+
+## Git-managed Omarchy workflow
+
+`omarchy plugin add <git-url>` clones the repository directly to `~/.config/omarchy/plugins/<id>`. Omarchy validates and discovers QML but intentionally runs no native installer hook. Build and install the daemon explicitly from that checkout. `scripts/install-plugin.sh` detects this layout and does not copy files over the source checkout.
+
+Run `scripts/uninstall.sh` before `omarchy plugin remove`. The script removes the user service and native binaries but preserves a git-managed checkout so Omarchy can remove it cleanly.

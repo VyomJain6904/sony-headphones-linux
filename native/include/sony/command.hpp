@@ -1,11 +1,12 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
 namespace sony {
 
-enum class CommandKind {
+enum class CommandKind : std::uint8_t {
   Status,
   PanelOpen,
   PanelClose,

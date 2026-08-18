@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import qs.Ui
 import "Model.js" as Model
 
@@ -44,13 +43,14 @@ BarWidget {
     }
   }
 
-  WidgetButton {
+  BarIconButton {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: Model.barText(sony.status)
+    text: Model.HEADPHONES_ICON
     tooltipText: sony.connected
-      ? Model.deviceTitle(sony.status) + " · " + Model.noiseLabel(sony.noiseMode)
+      ? Model.deviceTitle(sony.status) + " · " + Model.levelText(Model.bestBattery(sony.status))
+        + " · " + Model.noiseLabel(sony.noiseMode)
       : "Open Sony Headphones"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()

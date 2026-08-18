@@ -32,16 +32,32 @@ cmake_args=(
 
 if [ "$with_libmdr" -eq 1 ]; then
   "$script_dir/check-deps.sh"
+  # Resolved from this script's runtime directory.
+  # shellcheck disable=SC1091
   source "$script_dir/libmdr-version.sh"
   libmdr_source="${SONY_LIBMDR_SOURCE_DIR:-}"
   if [ -z "$libmdr_source" ]; then
-    libmdr_source="$($script_dir/fetch-libmdr.sh | tail -n 1)"
+    libmdr_source="$("$script_dir/fetch-libmdr.sh" | tail -n 1)"
   fi
   actual_libmdr_commit="$(git -C "$libmdr_source" rev-parse HEAD)"
   if [ "$actual_libmdr_commit" != "$LIBMDR_COMMIT" ]; then
     printf 'libmdr source is not at the reviewed commit: %s\n' "$actual_libmdr_commit" >&2
     exit 1
   fi
+  libmdr_patch="$project_dir/patches/libmdr-v2-connection-priority-validation.patch"
+  if [ ! -f "$libmdr_patch" ]; then
+    printf 'Required reviewed libmdr patch is missing: %s\n' "$libmdr_patch" >&2
+    exit 1
+  fi
+  if git -C "$libmdr_source" apply --reverse --check "$libmdr_patch" >/dev/null 2>&1; then
+    : # Already applied in this working tree.
+  elif git -C "$libmdr_source" apply --check "$libmdr_patch"; then
+    git -C "$libmdr_source" apply "$libmdr_patch"
+  else
+    printf 'Reviewed libmdr patch does not apply cleanly to %s\n' "$LIBMDR_COMMIT" >&2
+    exit 1
+  fi
+  git -C "$libmdr_source" diff --check
   libmdr_build="$project_dir/build/libmdr"
   cmake -S "$libmdr_source" -B "$libmdr_build" \
     -DCMAKE_BUILD_TYPE=Release \

@@ -28,6 +28,13 @@ using namespace std::chrono_literals;
 constexpr std::string_view kV2Uuid = "956c7b26-d49a-4ba8-b03f-b17d393cb6e2";
 constexpr std::string_view kV1Uuid = "96cc203e-5068-46ad-b32d-e316f5e069ba";
 
+constexpr int protocolGeneration(std::string_view service) {
+  return service == MDR_SERVICE_UUID_XM5 ? 2 : service == MDR_SERVICE_UUID_LEGACY ? 1 : 0;
+}
+
+static_assert(protocolGeneration(MDR_SERVICE_UUID_XM5) == 2);
+static_assert(protocolGeneration(MDR_SERVICE_UUID_LEGACY) == 1);
+
 struct MessageDeleter {
   void operator()(DBusMessage* message) const { if (message != nullptr) dbus_message_unref(message); }
 };
@@ -459,11 +466,16 @@ class MdrBackend final : public Backend {
   }
 
   std::string resultMessage(MDRResult result) const {
-    if (connection_ != nullptr) {
+    const std::string resultName = mdrResultString(result);
+    if (headphones_) {
+      const std::string detail = getText(headphones_.get(), MDR_TEXT_LAST_ERROR);
+      if (!detail.empty() && detail != "N/A") return resultName + ": " + detail;
+    } else if (connection_ != nullptr) {
       const char* detail = mdrConnectionGetLastError(connection_);
-      if (detail != nullptr && *detail != '\0') return detail;
+      if (detail != nullptr && *detail != '\0' && std::strcmp(detail, "N/A") != 0)
+        return resultName + ": " + detail;
     }
-    return mdrResultString(result);
+    return resultName;
   }
 
   void markChanged() {
@@ -543,6 +555,7 @@ class MdrBackend final : public Backend {
     }
     stage_ = Stage::Initializing;
     state_.device.name = candidates_[candidateIndex_].name;
+    state_.device.protocol = protocolGeneration(candidates_[candidateIndex_].services[serviceIndex_]);
     setPhase("syncing", {}, false);
   }
 
@@ -572,7 +585,6 @@ class MdrBackend final : public Backend {
 
     MDRModel model{};
     if (mdrHeadphonesGetModel(headphones_.get(), &model) == MDR_RESULT_OK) {
-      state_.device.protocol = static_cast<int>(model.protocol_version);
       state_.device.codec = codecName(model.audio_codec);
     }
     const std::string modelName = getText(headphones_.get(), MDR_TEXT_MODEL_NAME);
@@ -692,8 +704,12 @@ class MdrBackend final : public Backend {
 
   MDRResult setEqualizer(const Command& command) {
     if (command.kind == CommandKind::Dsee && !state_.capabilities.dsee) return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    if (command.kind == CommandKind::EqualizerPreset && !state_.capabilities.equalizer)
-      return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    if (command.kind == CommandKind::EqualizerPreset) {
+      if (!state_.capabilities.equalizer
+          || std::find(state_.equalizer.availablePresets.begin(), state_.equalizer.availablePresets.end(), command.value)
+            == state_.equalizer.availablePresets.end())
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    }
     MDREqualizer value{};
     MDRResult result = mdrHeadphonesGetEqualizer(headphones_.get(), &value);
     if (result != MDR_RESULT_OK) return result;

@@ -10,7 +10,7 @@ vm.runInContext(source, context, { filename: "Model.js" })
 
 const live = JSON.stringify({
   schema_version: 1,
-  daemon_version: "0.1.0",
+  daemon_version: "0.2.0",
   revision: 7,
   phase: "ready",
   connected: true,
@@ -32,7 +32,14 @@ const live = JSON.stringify({
   },
   noise: { mode: "anc", ambient_level: 12, focus_on_voice: false, adaptive: false, adaptive_sensitivity: "standard" },
   speak_to_chat: { enabled: true, sensitivity: "auto", timeout: "medium" },
-  equalizer: { preset: "bright", clear_bass: 2, bands: [-2, -1, 0, 1, 2], dsee_enabled: true, dsee_type: "ultimate" },
+  equalizer: {
+    preset: "bright",
+    available_presets: ["off", "bright", "bass"],
+    clear_bass: 2,
+    bands: [-2, -1, 0, 1, 2],
+    dsee_enabled: true,
+    dsee_type: "ultimate"
+  },
   playback: { status: "playing", volume: 42 },
   connection: { priority: "quality" },
   last_error: ""
@@ -48,7 +55,7 @@ assert.equal(status.capabilities.noiseCancelling, true)
 assert.equal(status.capabilities.batteryCase, false)
 assert.equal(status.noise.mode, "anc")
 assert.equal(status.equalizer.bands.join(","), "-2,-1,0,1,2")
-assert.equal(context.barText(status), "SONY 73%")
+assert.equal(status.equalizer.availablePresets.join(","), "off,bright,bass")
 assert.equal(context.codecLabel("ldac"), "LDAC")
 assert.equal(context.deviceTitle(status), "WH-1000XM5")
 
@@ -64,6 +71,7 @@ const buds = context.parseStatus(JSON.stringify({
 assert.equal(context.bestBattery(buds), 60)
 assert.equal(context.batteryRows(buds).length, 3)
 assert.equal(context.chargingLabel(buds.battery.right.charging), "Charging")
+assert.deepEqual(Array.from(buds.equalizer.availablePresets), [])
 
 assert.equal(context.parseStatus("").ok, false)
 assert.equal(context.parseStatus("not json").ok, false)

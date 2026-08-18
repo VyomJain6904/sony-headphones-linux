@@ -68,6 +68,7 @@ struct SpeakToChatState {
 
 struct EqualizerState {
   std::string preset{"unknown"};
+  std::vector<std::string> availablePresets;
   int clearBass{};
   std::vector<int> bands;
   bool dseeEnabled{};

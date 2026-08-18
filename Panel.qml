@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Quickshell
 import qs.Commons
 import qs.Ui
 import "Model.js" as Model
@@ -17,12 +16,52 @@ Panel {
   property var hostWidget: null
   property var service: null
 
-  readonly property color foreground: root.barForeground
+  readonly property color foreground: root.bar ? root.bar.foreground : Color.foreground
   readonly property color dim: Qt.darker(foreground, 1.55)
-  readonly property color urgent: root.bar ? root.bar.urgent : foreground
+  readonly property color urgent: root.bar ? root.bar.urgent : Color.urgent
   readonly property string fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
   readonly property var batteryRows: service ? Model.batteryRows(service.status) : []
-  readonly property var eqPresets: ["off", "bright", "excited", "mellow", "relaxed", "vocal", "bass", "speech"]
+  readonly property var eqPresets: service ? service.status.equalizer.availablePresets : []
+  property bool cursorActive: false
+  property string focusSection: "noise"
+  property int selectedIndex: 0
+
+  readonly property var noiseActions: {
+    var actions = []
+    if (!service || !service.connected) return actions
+    if (service.status.capabilities.noiseCancelling)
+      actions.push({ key: Model.NOISE_ANC, label: "Noise cancelling", icon: "", selected: service.noiseMode === Model.NOISE_ANC })
+    if (service.status.capabilities.ambientSound)
+      actions.push({ key: Model.NOISE_AMBIENT, label: "Ambient", icon: "", selected: service.noiseMode === Model.NOISE_AMBIENT })
+    actions.push({ key: Model.NOISE_OFF, label: "Off", icon: "", selected: service.noiseMode === Model.NOISE_OFF })
+    return actions
+  }
+  readonly property var equalizerActions: {
+    var actions = []
+    for (var index = 0; index < eqPresets.length; ++index) {
+      var preset = eqPresets[index]
+      actions.push({ key: preset, label: Model.presetLabel(preset), icon: "", selected: service && service.equalizerPreset === preset })
+    }
+    return actions
+  }
+  readonly property var connectionActions: service && service.connected && service.status.capabilities.connectionMode ? [
+    { key: "quality", label: "Sound quality", icon: "", selected: service.connectionPriority === "quality" },
+    { key: "stable", label: "Stable connection", icon: "", selected: service.connectionPriority === "stable" }
+  ] : []
+  readonly property var visibleSections: {
+    var sections = []
+    if (noiseActions.length > 0) sections.push("noise")
+    if (service && service.connected && service.status.capabilities.ambientSound) {
+      sections.push("ambient")
+      sections.push("focus")
+    }
+    if (service && service.connected && service.status.capabilities.speakToChat) sections.push("speak")
+    if (equalizerActions.length > 0) sections.push("equalizer")
+    if (service && service.connected && service.status.capabilities.dsee) sections.push("dsee")
+    if (service && service.connected && service.status.capabilities.playbackVolume) sections.push("volume")
+    if (connectionActions.length > 0) sections.push("connection")
+    return sections
+  }
 
   function open() { root.controller.show() }
   function close() { root.controller.hide() }
@@ -32,12 +71,129 @@ Panel {
     return false
   }
 
+  function sectionActions(section) {
+    if (section === "noise") return noiseActions
+    if (section === "equalizer") return equalizerActions
+    if (section === "connection") return connectionActions
+    return []
+  }
+
+  function sectionIsSlider(section) { return section === "ambient" || section === "volume" }
+
+  function firstIndexForSection(section) { return sectionIsSlider(section) ? -1 : 0 }
+
+  function clampCursor() {
+    if (visibleSections.length === 0) {
+      cursorActive = false
+      return
+    }
+    if (visibleSections.indexOf(focusSection) < 0) {
+      focusSection = visibleSections[0]
+      selectedIndex = firstIndexForSection(focusSection)
+      return
+    }
+    if (sectionIsSlider(focusSection)) {
+      selectedIndex = -1
+      return
+    }
+    var count = sectionActions(focusSection).length
+    if (focusSection === "focus" || focusSection === "speak" || focusSection === "dsee") count = 1
+    if (count < 1) {
+      selectedIndex = 0
+      return
+    }
+    selectedIndex = Math.max(0, Math.min(count - 1, selectedIndex))
+  }
+
+  function setCursor(section, index, item) {
+    cursorActive = true
+    focusSection = section
+    selectedIndex = index
+    if (item) ensureCursorVisible(item)
+  }
+
+  function moveCursorVertical(delta) {
+    if (visibleSections.length === 0) return
+    if (!cursorActive) {
+      cursorActive = true
+      clampCursor()
+      return
+    }
+    var current = visibleSections.indexOf(focusSection)
+    if (current < 0) current = 0
+    var next = Math.max(0, Math.min(visibleSections.length - 1, current + delta))
+    focusSection = visibleSections[next]
+    selectedIndex = firstIndexForSection(focusSection)
+  }
+
+  function moveCursorHorizontal(delta) {
+    if (!cursorActive) {
+      moveCursorVertical(1)
+      return
+    }
+    if (focusSection === "ambient" && service) {
+      service.setAmbientLevel(service.ambientLevel + delta)
+      return
+    }
+    if (focusSection === "volume" && service) {
+      service.setVolume(service.volume + delta * 5)
+      return
+    }
+    var count = sectionActions(focusSection).length
+    if (count > 0) selectedIndex = Math.max(0, Math.min(count - 1, selectedIndex + delta))
+  }
+
+  function activateAction(section, key) {
+    if (!service || !service.connected) return
+    if (section === "noise") service.setNoiseMode(key)
+    else if (section === "equalizer") service.setEqualizerPreset(key)
+    else if (section === "connection") service.setConnectionPriority(key)
+  }
+
+  function activateCursor() {
+    if (!cursorActive || !service || !service.connected) return
+    var actions = sectionActions(focusSection)
+    if (actions.length > 0 && selectedIndex >= 0 && selectedIndex < actions.length) {
+      activateAction(focusSection, actions[selectedIndex].key)
+      return
+    }
+    if (focusSection === "focus") service.setFocusOnVoice(!service.focusOnVoice)
+    else if (focusSection === "speak") service.setSpeakToChat(!service.speakToChat)
+    else if (focusSection === "dsee") service.setDsee(!service.dseeEnabled)
+  }
+
+  function resetScroll() {
+    var flick = scrollArea ? scrollArea.contentItem : null
+    if (flick && flick.contentY !== undefined) flick.contentY = 0
+  }
+
+  function ensureCursorVisible(item) {
+    if (!item || !scrollArea) return
+    var flick = scrollArea.contentItem
+    if (!flick || flick.contentY === undefined) return
+    var margin = Style.space(6)
+    var point = item.mapToItem(flick.contentItem || flick, 0, 0)
+    var top = point.y
+    var bottom = top + (item.height || 0)
+    var maxY = Math.max(0, (flick.contentHeight || 0) - flick.height)
+    if (top < flick.contentY + margin) flick.contentY = Math.max(0, Math.min(maxY, top - margin))
+    else if (bottom > flick.contentY + flick.height - margin)
+      flick.contentY = Math.max(0, Math.min(maxY, bottom + margin - flick.height))
+  }
+
+  onVisibleSectionsChanged: Qt.callLater(clampCursor)
+
   onOpenedChanged: {
     if (!service) return
     service.setPanelOpen(root.opened)
     if (root.opened) {
       service.refresh()
-      Qt.callLater(function() { keyCatcher.forceActiveFocus() })
+      cursorActive = false
+      Qt.callLater(function() {
+        root.clampCursor()
+        root.resetScroll()
+        keyCatcher.forceActiveFocus()
+      })
     }
   }
 
@@ -48,14 +204,20 @@ Panel {
     bar: root.bar
     open: root.opened
     focusTarget: keyCatcher
-    contentWidth: panel.fittedContentWidth(Style.space(400))
-    contentHeight: panel.fittedContentHeight(content.implicitHeight, Style.space(620))
+    contentWidth: panel.fittedContentWidth(Style.space(380))
+    contentHeight: panel.fittedContentHeight(content.implicitHeight, Style.space(560))
 
     PanelKeyCatcher {
       id: keyCatcher
       anchors.fill: parent
       onCloseRequested: root.close()
       onTabRequested: function(direction) { root.switchPanel(direction) }
+      onMoveRequested: function(dx, dy) {
+        if (!root.service || !root.service.connected) return
+        if (dy !== 0) root.moveCursorVertical(dy)
+        else if (dx !== 0) root.moveCursorHorizontal(dx)
+      }
+      onActivateRequested: root.activateCursor()
       onTextKey: function(text) {
         if (!root.service || !root.service.connected) return
         var key = String(text).toLowerCase()
@@ -65,32 +227,27 @@ Panel {
         else if (key === "r") root.service.requestRefresh()
       }
 
-      Flickable {
+      ScrollView {
+        id: scrollArea
         anchors.fill: parent
-        contentWidth: width
-        contentHeight: content.implicitHeight
         clip: true
-        boundsBehavior: Flickable.StopAtBounds
-        flickableDirection: Flickable.VerticalFlick
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: content.implicitHeight > height ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
+        Binding {
+          target: scrollArea.contentItem
+          property: "interactive"
+          value: content.implicitHeight > scrollArea.height
+        }
 
         Column {
           id: content
-          width: parent.width
-          spacing: Style.space(12)
+          width: scrollArea.availableWidth
+          spacing: Style.spacing.panelGap
 
-          Text {
+          PanelHero {
             width: parent.width
-            text: root.service ? Model.deviceTitle(root.service.status) : "Sony Headphones"
-            color: root.foreground
-            font.family: root.fontFamily
-            font.pixelSize: Style.font.subtitle
-            font.bold: true
-            wrapMode: Text.WordWrap
-          }
-
-          Text {
-            width: parent.width
-            text: {
+            title: root.service ? Model.deviceTitle(root.service.status) : "Sony Headphones"
+            meta: {
               if (!root.service) return "Service unavailable"
               var status = Model.phaseLabel(root.service.status.phase)
               if (root.service.status.connected) {
@@ -100,10 +257,16 @@ Panel {
               }
               return status
             }
-            color: root.dim
-            font.family: root.fontFamily
-            font.pixelSize: Style.font.bodySmall
-            wrapMode: Text.WordWrap
+            foreground: root.foreground
+            fontFamily: root.fontFamily
+            iconComponent: Component {
+              Text {
+                text: Model.HEADPHONES_ICON
+                color: root.foreground
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.display
+              }
+            }
           }
 
           Text {
@@ -136,62 +299,71 @@ Panel {
             text: "SOUND CONTROL"
           }
 
-          Flow {
+          CenteredButtonGroup {
             visible: root.service && root.service.connected
               && (root.service.status.capabilities.noiseCancelling || root.service.status.capabilities.ambientSound)
             width: parent.width
-            spacing: Style.space(6)
-
-            ActionButton {
-              visible: root.service && root.service.status.capabilities.noiseCancelling
-              label: "Noise cancelling"
-              selected: root.service && root.service.noiseMode === Model.NOISE_ANC
-              onTriggered: root.service.setNoiseMode(Model.NOISE_ANC)
-            }
-            ActionButton {
-              visible: root.service && root.service.status.capabilities.ambientSound
-              label: "Ambient"
-              selected: root.service && root.service.noiseMode === Model.NOISE_AMBIENT
-              onTriggered: root.service.setNoiseMode(Model.NOISE_AMBIENT)
-            }
-            ActionButton {
-              label: "Off"
-              selected: root.service && root.service.noiseMode === Model.NOISE_OFF
-              onTriggered: root.service.setNoiseMode(Model.NOISE_OFF)
-            }
+            sectionName: "noise"
+            actions: root.noiseActions
+            maximumColumns: 3
           }
 
           Column {
             visible: root.service && root.service.connected && root.service.status.capabilities.ambientSound
             width: parent.width
-            spacing: Style.space(4)
+            spacing: Style.spacing.labelGap
 
             RowLayout {
               width: parent.width
               Text { text: "Ambient level"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               Item { Layout.fillWidth: true }
-              Text { text: root.service ? root.service.ambientLevel : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall }
+              Text {
+                text: ambientSlider.dragging ? Math.round(ambientSlider.liveValue) : (root.service ? root.service.ambientLevel : "")
+                color: root.dim
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.bodySmall
+              }
             }
 
-            Slider {
-              id: ambientSlider
+            CursorSurface {
               width: parent.width
-              from: 1
-              to: 20
-              stepSize: 1
-              live: true
-              onPressedChanged: if (!pressed && root.service) root.service.setAmbientLevel(value)
-              Binding {
-                target: ambientSlider
-                property: "value"
-                value: root.service ? root.service.ambientLevel : 1
-                when: !ambientSlider.pressed
+              height: ambientSlider.implicitHeight + Style.spacing.controlGap
+              hasCursor: root.cursorActive && root.focusSection === "ambient"
+              onHasCursorChanged: if (hasCursor) root.ensureCursorVisible(this)
+              foreground: root.foreground
+              outline: true
+
+              PanelSlider {
+                id: ambientSlider
+                property real releaseValue: 1
+                bar: root.bar
+                anchors.fill: parent
+                anchors.leftMargin: Style.space(6)
+                anchors.rightMargin: Style.space(6)
+                minimum: 1
+                maximum: 20
+                step: 1
+                integer: true
+                onMoved: function(value) { releaseValue = value }
+                onReleased: function() {
+                  if (root.service) root.service.setAmbientLevel(releaseValue)
+                }
+                Binding {
+                  target: ambientSlider
+                  property: "value"
+                  value: root.service ? root.service.ambientLevel : 1
+                  when: !ambientSlider.dragging
+                }
+              }
+              HoverHandler {
+                onHoveredChanged: if (hovered) root.setCursor("ambient", -1, parent)
               }
             }
           }
 
           ToggleRow {
             visible: root.service && root.service.connected && root.service.status.capabilities.ambientSound
+            sectionName: "focus"
             label: "Focus on voice"
             caption: "Prioritize voices in ambient mode"
             checked: root.service && root.service.focusOnVoice
@@ -200,6 +372,7 @@ Panel {
 
           ToggleRow {
             visible: root.service && root.service.connected && root.service.status.capabilities.speakToChat
+            sectionName: "speak"
             label: "Speak-to-Chat"
             caption: "Pause or lower audio when you speak"
             checked: root.service && root.service.speakToChat
@@ -208,27 +381,21 @@ Panel {
 
           SectionTitle {
             visible: root.service && root.service.connected
-              && (root.service.status.capabilities.equalizer || root.service.status.capabilities.dsee)
+              && (root.eqPresets.length > 0 || root.service.status.capabilities.dsee)
             text: "SOUND"
           }
 
-          Flow {
-            visible: root.service && root.service.connected && root.service.status.capabilities.equalizer
+          CenteredButtonGroup {
+            visible: root.service && root.service.connected && root.eqPresets.length > 0
             width: parent.width
-            spacing: Style.space(6)
-            Repeater {
-              model: root.eqPresets
-              ActionButton {
-                required property string modelData
-                label: Model.presetLabel(modelData)
-                selected: root.service && root.service.equalizerPreset === modelData
-                onTriggered: root.service.setEqualizerPreset(modelData)
-              }
-            }
+            sectionName: "equalizer"
+            actions: root.equalizerActions
+            maximumColumns: 2
           }
 
           ToggleRow {
             visible: root.service && root.service.connected && root.service.status.capabilities.dsee
+            sectionName: "dsee"
             label: "DSEE"
             caption: root.service ? root.service.status.equalizer.dseeType : ""
             checked: root.service && root.service.dseeEnabled
@@ -236,45 +403,57 @@ Panel {
           }
 
           SectionTitle {
-            visible: root.service && root.service.connected
-              && (root.service.status.capabilities.playbackControl || root.service.status.capabilities.playbackVolume)
-            text: "PLAYBACK"
-          }
-
-          Row {
-            visible: root.service && root.service.connected && root.service.status.capabilities.playbackControl
-            spacing: Style.space(6)
-            ActionButton { label: "Previous"; onTriggered: root.service.playback("previous") }
-            ActionButton {
-              label: root.service && root.service.status.playback.status === "playing" ? "Pause" : "Play"
-              onTriggered: root.service.playback(root.service.status.playback.status === "playing" ? "pause" : "play")
-            }
-            ActionButton { label: "Next"; onTriggered: root.service.playback("next") }
+            visible: root.service && root.service.connected && root.service.status.capabilities.playbackVolume
+            text: "VOLUME"
           }
 
           Column {
             visible: root.service && root.service.connected && root.service.status.capabilities.playbackVolume
             width: parent.width
-            spacing: Style.space(4)
+            spacing: Style.spacing.labelGap
             RowLayout {
               width: parent.width
               Text { text: "Volume"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               Item { Layout.fillWidth: true }
-              Text { text: root.service ? root.service.volume + "%" : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall }
+              Text {
+                text: (volumeSlider.dragging ? Math.round(volumeSlider.liveValue) : (root.service ? root.service.volume : "")) + "%"
+                color: root.dim
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.bodySmall
+              }
             }
-            Slider {
-              id: volumeSlider
+            CursorSurface {
               width: parent.width
-              from: 0
-              to: 100
-              stepSize: 1
-              live: true
-              onPressedChanged: if (!pressed && root.service) root.service.setVolume(value)
-              Binding {
-                target: volumeSlider
-                property: "value"
-                value: root.service ? root.service.volume : 0
-                when: !volumeSlider.pressed
+              height: volumeSlider.implicitHeight + Style.spacing.controlGap
+              hasCursor: root.cursorActive && root.focusSection === "volume"
+              onHasCursorChanged: if (hasCursor) root.ensureCursorVisible(this)
+              foreground: root.foreground
+              outline: true
+
+              PanelSlider {
+                id: volumeSlider
+                property real releaseValue: 0
+                bar: root.bar
+                anchors.fill: parent
+                anchors.leftMargin: Style.space(6)
+                anchors.rightMargin: Style.space(6)
+                minimum: 0
+                maximum: 100
+                step: 1
+                integer: true
+                onMoved: function(value) { releaseValue = value }
+                onReleased: function() {
+                  if (root.service) root.service.setVolume(releaseValue)
+                }
+                Binding {
+                  target: volumeSlider
+                  property: "value"
+                  value: root.service ? root.service.volume : 0
+                  when: !volumeSlider.dragging
+                }
+              }
+              HoverHandler {
+                onHoveredChanged: if (hovered) root.setCursor("volume", -1, parent)
               }
             }
           }
@@ -284,20 +463,12 @@ Panel {
             text: "CONNECTION"
           }
 
-          Flow {
+          CenteredButtonGroup {
             visible: root.service && root.service.connected && root.service.status.capabilities.connectionMode
             width: parent.width
-            spacing: Style.space(6)
-            ActionButton {
-              label: "Sound quality"
-              selected: root.service && root.service.connectionPriority === "quality"
-              onTriggered: root.service.setConnectionPriority("quality")
-            }
-            ActionButton {
-              label: "Stable connection"
-              selected: root.service && root.service.connectionPriority === "stable"
-              onTriggered: root.service.setConnectionPriority("stable")
-            }
+            sectionName: "connection"
+            actions: root.connectionActions
+            maximumColumns: 2
           }
 
           Text {
@@ -317,36 +488,90 @@ Panel {
     }
   }
 
-  component SectionTitle: Text {
-    color: root.dim
-    font.family: root.fontFamily
-    font.pixelSize: Style.font.bodySmall
-    font.bold: true
-    font.letterSpacing: 0.8
+  component SectionTitle: PanelSectionHeader {
+    foreground: root.foreground
+    fontFamily: root.fontFamily
   }
 
-  component ActionButton: Rectangle {
+  component ActionButton: Button {
     id: action
+    property string icon: ""
     property string label: ""
-    property bool selected: false
     signal triggered()
 
-    implicitWidth: actionText.implicitWidth + Style.space(18)
-    implicitHeight: Style.space(32)
-    radius: Style.space(6)
-    color: selected ? Qt.lighter(root.foreground, 1.45) : Qt.darker(root.foreground, 3.4)
-    opacity: actionTap.pressed ? 0.75 : 1.0
+    text: label
+    iconText: icon
+    bordered: true
+    foreground: root.foreground
+    accent: Color.accent
+    fontFamily: root.fontFamily
+    fontSize: Style.font.bodySmall
+    iconSize: Style.font.icon
+    onClicked: action.triggered()
+  }
 
-    Text {
-      id: actionText
-      anchors.centerIn: parent
-      text: action.label
-      color: selected ? Qt.darker(root.foreground, 3.8) : root.foreground
-      font.family: root.fontFamily
-      font.pixelSize: Style.font.bodySmall
-      font.bold: selected
+  component CenteredButtonGroup: Item {
+    id: buttonGroup
+    property string sectionName: ""
+    property var actions: []
+    property int maximumColumns: 3
+    readonly property int columnCount: width < Style.space(290)
+      ? 1
+      : Math.max(1, Math.min(maximumColumns, actions.length))
+    readonly property int rowCount: actions.length > 0 ? Math.ceil(actions.length / columnCount) : 0
+
+    implicitHeight: rows.implicitHeight
+
+    Column {
+      id: rows
+      width: parent.width
+      spacing: Style.spacing.md
+
+      Repeater {
+        model: buttonGroup.rowCount
+
+        Item {
+          id: rowSlot
+          required property int index
+          width: rows.width
+          implicitHeight: buttonRow.implicitHeight
+
+          RowLayout {
+            id: buttonRow
+            width: parent.width
+            spacing: Style.spacing.md
+
+            Item { Layout.fillWidth: true }
+
+            Repeater {
+              model: buttonGroup.actions.slice(
+                rowSlot.index * buttonGroup.columnCount,
+                Math.min(buttonGroup.actions.length, (rowSlot.index + 1) * buttonGroup.columnCount))
+
+              ActionButton {
+                id: groupedButton
+                required property var modelData
+                required property int index
+                readonly property int actionIndex: rowSlot.index * buttonGroup.columnCount + index
+
+                icon: modelData.icon || ""
+                label: modelData.label || ""
+                selected: modelData.selected === true
+                hasCursor: root.cursorActive && root.focusSection === buttonGroup.sectionName
+                  && root.selectedIndex === actionIndex
+                onHasCursorChanged: if (hasCursor) root.ensureCursorVisible(groupedButton)
+                onHovered: function(isHovered) {
+                  if (isHovered) root.setCursor(buttonGroup.sectionName, actionIndex, groupedButton)
+                }
+                onTriggered: root.activateAction(buttonGroup.sectionName, modelData.key)
+              }
+            }
+
+            Item { Layout.fillWidth: true }
+          }
+        }
+      }
     }
-    TapHandler { id: actionTap; onTapped: action.triggered() }
   }
 
   component BatteryRow: RowLayout {
@@ -354,7 +579,7 @@ Panel {
     property string label: ""
     property var battery: Model.defaultBattery()
 
-    spacing: Style.space(8)
+    spacing: Style.spacing.controlGap
     Text {
       text: batteryRow.label
       color: root.foreground
@@ -367,7 +592,7 @@ Panel {
       Layout.alignment: Qt.AlignVCenter
       implicitHeight: Style.space(6)
       radius: height / 2
-      color: Qt.darker(root.foreground, 3.2)
+      color: Style.normalFillFor(root.foreground, Color.accent)
       Rectangle {
         width: parent.width * (batteryRow.battery.level === Model.UNKNOWN_LEVEL ? 0 : batteryRow.battery.level / 100)
         height: parent.height
@@ -393,51 +618,24 @@ Panel {
     }
   }
 
-  component ToggleRow: Rectangle {
+  component ToggleRow: Toggle {
     id: toggleRow
-    property string label: ""
+    property string sectionName: ""
     property string caption: ""
-    property bool checked: false
     signal triggered()
 
     width: parent ? parent.width : implicitWidth
-    implicitHeight: toggleColumn.implicitHeight + Style.space(14)
-    radius: Style.space(6)
-    color: toggleTap.pressed ? Qt.darker(root.foreground, 2.9) : Qt.darker(root.foreground, 3.4)
-
-    RowLayout {
-      anchors.fill: parent
-      anchors.margins: Style.space(7)
-      Column {
-        id: toggleColumn
-        Layout.fillWidth: true
-        spacing: Style.space(2)
-        Text { text: toggleRow.label; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
-        Text {
-          visible: toggleRow.caption !== ""
-          width: parent.width
-          text: toggleRow.caption
-          color: root.dim
-          font.family: root.fontFamily
-          font.pixelSize: Style.font.bodySmall
-          wrapMode: Text.WordWrap
-        }
-      }
-      Rectangle {
-        implicitWidth: Style.space(34)
-        implicitHeight: Style.space(18)
-        radius: height / 2
-        color: toggleRow.checked ? root.foreground : root.dim
-        Rectangle {
-          width: parent.height - Style.space(4)
-          height: width
-          radius: width / 2
-          y: Style.space(2)
-          x: toggleRow.checked ? parent.width - width - Style.space(2) : Style.space(2)
-          color: toggleRow.checked ? Qt.darker(root.foreground, 3.8) : root.foreground
-        }
-      }
+    description: caption
+    foreground: root.foreground
+    accent: Color.accent
+    fontFamily: root.fontFamily
+    titleSize: Style.font.body
+    descriptionSize: Style.font.bodySmall
+    hasCursor: root.cursorActive && root.focusSection === sectionName
+    onHasCursorChanged: if (hasCursor) root.ensureCursorVisible(toggleRow)
+    onHovered: function(isHovered) {
+      if (isHovered) root.setCursor(sectionName, 0, toggleRow)
     }
-    TapHandler { id: toggleTap; onTapped: toggleRow.triggered() }
+    onClicked: toggleRow.triggered()
   }
 }

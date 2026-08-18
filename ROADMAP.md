@@ -9,17 +9,18 @@ The roadmap is evidence-gated: a milestone is complete only when its checks and 
 - [x] Scaffold the Omarchy bar-widget contract.
 - [x] Add a native C++ state/IPC core and deterministic mock backend.
 - [x] Add pure JavaScript and native tests.
-- [ ] Validate QML against a live Omarchy Quattro installation.
+- [x] Validate QML and the mock workflow against a live Omarchy Quattro installation.
 
 Exit: mock daemon, CLI, watched state, and panel work end to end without Python.
 
 ## 0.2 — WH-1000XM5 hardware alpha
 
-- Complete BlueZ service discovery and MDR v2 connection.
-- Verify initialization, event handling, commit flow, and idle release.
-- Verify battery, ANC, ambient level, focus on voice, EQ, DSEE, playback, and connection priority.
-- Record XM5 firmware and feature matrix.
-- Exercise Bluetooth off/on, sleep/resume, shell restart, and daemon restart.
+- [x] Complete BlueZ service discovery and MDR v2 connection.
+- [x] Verify initialization, event handling, commit flow, and idle release.
+- [x] Verify battery, ANC, ambient level, focus on voice, Speak-to-Chat, DSEE, playback, volume, and connection priority.
+- [x] Record XM5 firmware and feature matrix.
+- [ ] Exercise Bluetooth off/on and sleep/resume; shell and daemon restart already pass.
+- [x] Expose equalizer preset writes only after the protocol layer reports the device's writable preset list; hide and reject them when the stable ABI reports no list.
 
 Exit: repeated XM5 control sessions with no stale UI or leaked control connection.
 
@@ -39,7 +40,7 @@ Exit: compatibility claims are based on at least three protocol/form-factor grou
 - Complete install, upgrade, and removal scripts for Omarchy.
 - Add package/release artifacts and checksums.
 - Add CI on current Debian and Arch containers.
-- Prepare Marketplace metadata and preview image.
+- Prepare public Git release metadata and optional preview images.
 
 Exit: reproducible release artifacts and documented upgrade path.
 
@@ -48,7 +49,7 @@ Exit: reproducible release artifacts and documented upgrade path.
 - Pass every acceptance criterion in `SPEC.md`.
 - Complete security and license review.
 - Freeze schema v1 and document compatibility policy.
-- Publish signed/tagged release and Marketplace entry.
+- Publish a signed/tagged Git release installable with `omarchy plugin add`.
 
 ## Non-goals across all milestones
 

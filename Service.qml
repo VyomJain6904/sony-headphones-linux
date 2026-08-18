@@ -82,16 +82,16 @@ Item {
     if (commandProcess.running) {
       _queued = request
       if (request.field !== "") {
-        _pendingField = request.field
         _pendingValue = request.optimistic
+        _pendingField = request.field
         settleTimer.restart()
       }
       return
     }
 
     if (request.field !== "") {
-      _pendingField = request.field
       _pendingValue = request.optimistic
+      _pendingField = request.field
       settleTimer.restart()
     }
     actionError = ""
@@ -115,8 +115,6 @@ Item {
     var clamped = Model.clamp(Math.round(value), 0, 100)
     _send(Model.volumeArgs(clamped), "volume", clamped)
   }
-  function playback(action) { _send(["playback", action], "", null) }
-
   Timer {
     id: settleTimer
     interval: root.settleHoldMs

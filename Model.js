@@ -16,6 +16,7 @@ var NOISE_ANC = "anc"
 var NOISE_AMBIENT = "ambient"
 
 var MAX_ERROR_CHARS = 160
+var HEADPHONES_ICON = "󰋋"
 
 function defaultBattery() {
   return { present: false, level: UNKNOWN_LEVEL, charging: "unknown" }
@@ -78,7 +79,9 @@ function defaultStatus() {
       adaptiveSensitivity: "unknown"
     },
     speakToChat: { enabled: false, sensitivity: "unknown", timeout: "unknown" },
-    equalizer: { preset: "unknown", clearBass: 0, bands: [], dseeEnabled: false, dseeType: "unknown" },
+    equalizer: {
+      preset: "unknown", availablePresets: [], clearBass: 0, bands: [], dseeEnabled: false, dseeType: "unknown"
+    },
     playback: { status: "unknown", volume: 0 },
     connection: { priority: "unknown" },
     lastError: ""
@@ -214,6 +217,9 @@ function parseStatus(raw) {
   var equalizer = value.equalizer || {}
   result.equalizer = {
     preset: stringOr(equalizer.preset, "unknown"),
+    availablePresets: Array.isArray(equalizer.available_presets)
+      ? equalizer.available_presets.filter(function (preset) { return typeof preset === "string" })
+      : [],
     clearBass: clamp(intOr(equalizer.clear_bass, 0), -10, 10),
     bands: Array.isArray(equalizer.bands) ? equalizer.bands.map(function (band) {
       return clamp(intOr(band, 0), -10, 10)
@@ -278,12 +284,6 @@ function bestBattery(status) {
   if (battery.left.present) return battery.left.level
   if (battery.right.present) return battery.right.level
   return UNKNOWN_LEVEL
-}
-
-function barText(status) {
-  if (!status.connected) return "SONY"
-  var level = bestBattery(status)
-  return level === UNKNOWN_LEVEL ? "SONY" : "SONY " + level + "%"
 }
 
 function noiseLabel(mode) {

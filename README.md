@@ -2,22 +2,26 @@
 
 A fast, native Omarchy Quattro bar widget for Sony headphones that use the Sony | Sound Connect protocol. It is designed around the WH-1000XM5, but discovers protocol capabilities at runtime so the same code can serve compatible WH, WF, WI, LinkBuds, ULT, and INZONE families without a hard-coded UI per model.
 
-The project is under active development. The mock backend and schema are usable now; real-device support must still be validated on hardware before the first stable release. See [TASKS.md](TASKS.md) and [compatibility](docs/COMPATIBILITY.md).
+The project is a hardware alpha. Its complete local control path has been tested on one WH-1000XM5 running firmware 2.5.1, including reversible writes and RFCOMM release/reconnect. That evidence does not imply that every Sound Connect model is tested. See [TASKS.md](TASKS.md) and the [compatibility matrix](docs/COMPATIBILITY.md).
 
-## Planned control surface
+| Omarchy dark theme | Omarchy light theme |
+| --- | --- |
+| ![Sony Headphones panel using an Omarchy dark theme](docs/screenshots/panel-dark.png) | ![Sony Headphones panel using an Omarchy light theme](docs/screenshots/panel-light.png) |
+
+## Current control surface
 
 - Main, left, right, and case battery where reported
 - Noise cancellation, ambient sound level, and focus on voice
-- Adaptive ambient sound where available
 - Speak-to-Chat
-- Equalizer presets, bands, Clear Bass, and DSEE where available
-- Playback and volume
+- DSEE and equalizer presets only when the daemon reports the writable preset list
+- Headphone volume
 - Connection quality/stability preference
-- Multipoint status and paired-device management
-- Auto power-off, wearing detection, auto-pause, button assignment, and voice guidance
-- Pairing mode and safe shutdown with explicit confirmation
 
 Controls are capability-gated. A device that does not report a feature does not receive a dead toggle.
+
+Action buttons are centered in responsive rows. The panel follows Omarchy's keyboard model: Up/Down moves between control groups, Left/Right moves within a button row or adjusts a slider, Enter/Space activates the current control, Escape closes, and Tab/Shift+Tab switches neighboring bar panels. Transport playback buttons are intentionally not shown.
+
+Adaptive ambient tuning, custom EQ bands/Clear Bass, multipoint management, auto-off, wearing/auto-pause, assignable controls, voice guidance, pairing, and shutdown remain planned and are tracked in [TASKS.md](TASKS.md).
 
 ## Deliberately excluded
 
@@ -110,7 +114,7 @@ Build the real BlueZ/libmdr backend after installing the development packages:
 ./scripts/build.sh
 ```
 
-The build script fetches exactly the libmdr commit recorded in `scripts/libmdr-version.sh`, builds it locally, and then links the service. It does not install anything globally.
+The build script fetches exactly the libmdr commit recorded in `scripts/libmdr-version.sh`, applies the reviewed compatibility patch in `patches/`, builds it locally, and links the service. It does not install anything globally.
 
 ## Install on Omarchy
 
@@ -119,7 +123,7 @@ After building on the Omarchy machine:
 ```sh
 ./scripts/install.sh
 systemctl --user enable --now sony-headphones.service
-omarchy-shell shell rescanPlugins
+omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
 ```
 
 Validate the copied plugin:
@@ -127,20 +131,60 @@ Validate the copied plugin:
 ```sh
 PLUGIN_DIR="$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
 omarchy plugin validate "$PLUGIN_DIR"
-qmllint -I "$OMARCHY_PATH/shell" \
-  "$PLUGIN_DIR/BarWidget.qml" \
-  "$PLUGIN_DIR/Panel.qml" \
-  "$PLUGIN_DIR/Service.qml"
+./scripts/qml-lint.sh
 ```
 
-The plugin ID is `io.github.vyomjain6904.sony-headphones`. The installer copies only runtime plugin files, so the published folder contains no symlinks.
+The plugin ID is `io.github.vyomjain6904.sony-headphones`. The installer copies only runtime plugin files when run from a development checkout and safely detects when the repository is already the git-managed plugin checkout.
+
+### Install from the published Git repository
+
+Omarchy Quattro installs third-party plugins by cloning a Git repository whose root contains `manifest.json`. The Omarchy command deliberately does not run install hooks, plugin code, `sudo`, or this project's native build, so the daemon must be built explicitly:
+
+```sh
+omarchy plugin add https://github.com/VyomJain6904/sony-headphones-omarchy.git
+cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
+./scripts/build.sh
+./scripts/install.sh
+systemctl --user enable --now sony-headphones.service
+omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
+```
+
+Review the repository before enabling it. QML plugins run unsandboxed inside the long-lived Omarchy shell, while this project's daemon runs separately as an unprivileged user service.
+
+Update a Git-managed installation with:
+
+```sh
+omarchy plugin update io.github.vyomjain6904.sony-headphones
+cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
+./scripts/build.sh
+./scripts/install.sh
+systemctl --user restart sony-headphones.service
+```
+
+Remove a local-copy installation with `./scripts/uninstall.sh`. For a Git-managed installation, run that script first to remove the native service and binaries, then run `omarchy plugin remove io.github.vyomjain6904.sony-headphones` from outside the checkout.
+
+### Publication requirements
+
+- Keep `manifest.json` at the repository root, validate it on current Omarchy, and keep the permanent namespaced ID.
+- Publish a reviewable public Git repository. Current Omarchy Quattro distributes third-party plugins directly from Git; there is no separate Marketplace submission step in the current plugin workflow.
+- Match the manifest version to a SemVer tag, update `CHANGELOG.md`, and attach checksums/notices to any future binary artifacts.
+- Preserve immutable dependency pins, the reviewed libmdr patch, license notices, and complete runtime/build dependency documentation.
+- Report compatibility only from recorded hardware evidence. A release must not broaden the WH-1000XM5 result into an all-model claim.
+- Run every check in [docs/VERIFICATION.md](docs/VERIFICATION.md), test install/update/removal from a clean user account, and review all QML as unsandboxed shell code before publishing.
 
 ## Development loop
 
 ```sh
 ./scripts/check.sh
+./scripts/qml-lint.sh
 ./scripts/install-plugin.sh
 omarchy-shell shell rescanPlugins
+```
+
+Run the complete release gate on an Omarchy release host with:
+
+```sh
+./scripts/release-check.sh
 ```
 
 Saved QML changes normally reload automatically. Never start another Quickshell process to test this plugin. Use Omarchy's current shell and inspect failures with:
@@ -164,6 +208,7 @@ The plugin runs unprivileged with your user permissions. Its socket lives in `XD
 - [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) — evidence-based hardware matrix
 - [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — build and test details
 - [docs/VERIFICATION.md](docs/VERIFICATION.md) — checks actually run and remaining gaps
+- [docs/PUBLISHING.md](docs/PUBLISHING.md) — current Omarchy publication and release requirements
 - [THIRD_PARTY.md](THIRD_PARTY.md) — pinned sources, licenses, and system libraries
 
 ## License and affiliation

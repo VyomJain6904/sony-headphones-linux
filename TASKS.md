@@ -7,18 +7,21 @@
 - [x] Define the permanent namespaced plugin ID.
 - [x] Document dependencies, privilege boundaries, and source-build policy.
 - [x] Make the maintained C++/QML project the repository root.
-- [ ] Publish this repository publicly before Marketplace submission.
+- [ ] Publish this repository publicly so Omarchy can install it from Git.
 
 ## Omarchy plugin
 
 - [x] Add schema-v1 bar-widget manifest.
 - [x] Add bar entry point and nested panel lifecycle forwarding.
 - [x] Add watched state service with command queue and optimistic controls.
-- [x] Add capability-driven battery, noise, conversation, EQ, playback, and connection UI.
+- [x] Add capability-driven battery, noise, conversation, EQ, volume, and connection UI.
 - [x] Add pure JavaScript parser/label/command tests.
-- [ ] Run `omarchy plugin validate` on Omarchy.
-- [ ] Run `qmllint` with Omarchy shell imports.
-- [ ] Verify click, Escape, keyboard, shell summon/hide, disable/re-enable, restart, and removal.
+- [x] Run `omarchy plugin validate` on Omarchy.
+- [x] Run Qt 6 `qmllint` with Omarchy shell imports.
+- [x] Verify shell summon/hide and persistence across an Omarchy shell restart.
+- [x] Verify native theme controls, icon rendering, standard scrolling, and live dark/light palette changes.
+- [x] Verify Escape and arrow-key cursor navigation in the live Omarchy shell.
+- [ ] Verify mouse click and disable/re-enable on a clean user account.
 
 ## Native service
 
@@ -31,18 +34,19 @@
 - [x] Add BlueZ D-Bus discovery and MDR v2/v1 connection state machine.
 - [x] Add capability/state mapping and initial setters.
 - [x] Verify a full real-backend compile/link with the exact Debian BlueZ development package in a temporary sysroot.
-- [ ] Install Debian `libbluetooth-dev` for normal local real-backend builds.
-- [ ] Test against WH-1000XM5 hardware.
+- [x] Verify normal real-backend builds with installed BlueZ development headers on Omarchy.
+- [x] Test the implemented control surface against WH-1000XM5 firmware 2.5.1.
 - [ ] Add BLE/LE Audio transport after a real device proves it necessary.
 
 ## Reliability and performance
 
 - [x] Avoid QML subprocess polling and unchanged state writes.
 - [x] Release the control connection after a configurable idle deadline.
-- [ ] Add automated stale-socket and concurrent-client tests.
+- [x] Add automated stale-socket and concurrent-client tests.
 - [ ] Add sleep/resume and BlueZ restart recovery.
 - [ ] Benchmark idle wakeups, active latency, reconnect time, and RSS.
-- [ ] Run ASan/UBSan and long reconnect soak tests.
+- [x] Run ASan/UBSan on the native core and tests.
+- [ ] Run long reconnect soak tests.
 
 ## Feature completion
 
@@ -56,8 +60,11 @@
 
 ## Release
 
-- [ ] Populate the hardware compatibility matrix.
-- [ ] Complete release dependency/license/security review, including libbluetooth-linked binary obligations.
+- [x] Populate the hardware compatibility matrix with the WH-1000XM5 hardware-alpha evidence.
+- [x] Add source-checkout-aware install and uninstall scripts.
+- [x] Complete the source-release dependency/license/security review; keep binary licensing as separate artifact work.
 - [ ] Add Arch package/release artifact.
-- [ ] Create `preview.png`.
-- [ ] Publish 1.0 and Marketplace metadata.
+- [x] Create dark/light repository screenshots from the live Omarchy shell.
+- [ ] Test Git add/update/remove from a clean Omarchy account.
+- [ ] Publish signed/tagged 0.2.0 hardware-alpha source release.
+- [ ] Publish signed/tagged 1.0 source release after cross-device acceptance criteria pass.

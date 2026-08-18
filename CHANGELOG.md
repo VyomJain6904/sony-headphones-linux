@@ -4,6 +4,8 @@ All notable changes will be documented here. The format follows Keep a Changelog
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-19
+
 ### Added
 
 - Initial Omarchy bar-widget manifest, bar entry point, nested details panel, watched-state service, and capability-driven model.
@@ -11,11 +13,27 @@ All notable changes will be documented here. The format follows Keep a Changelog
 - Deterministic mock backend and compile-time development backend.
 - Pinned libmdr build integration, BlueZ D-Bus discovery, MDR v2/v1 connection flow, and initial read/write mapping.
 - User-level systemd service and local install/build/check scripts.
+- Qt 6/Omarchy-aware QML lint wrapper and source-checkout-aware uninstaller.
+- Two-tier GitHub Actions checks, sanitizer/release wrappers, and structured bug/device report forms.
+- Schema-v1 optional `equalizer.available_presets` field and capability-gated mock preset validation.
 - Product specification, roadmap, tasks, compatibility, architecture, development, security, and contribution documentation.
 
 ### Changed
 
 - Promoted the maintained C++/QML implementation to the repository root and expanded generated-file, local-environment, editor, log, and temporary-file exclusions.
+- Reworked the bar entry as an icon-only Nerd Font headphone glyph and moved battery detail to the tooltip/panel.
+- Reworked the panel with Omarchy's live color/style tokens, native hero/buttons/toggles/sliders, standard themed scrolling, and consistent spacing.
+- Centered every action-button row and added Omarchy-style arrow-key navigation, activation, slider adjustment, hover synchronization, and automatic cursor scrolling.
+- Removed transport playback buttons from the panel while retaining the v1 native command contract for backward compatibility.
+- Hide equalizer preset controls unless the daemon reports the exact writable preset list.
+- Made install/uninstall safe when Omarchy clones the repository directly into its managed plugin directory.
+
+### Fixed
+
+- Corrected MDR v2 protocol reporting and a pinned libmdr validation defect that rejected the WH-1000XM5 sound-quality connection mode.
+- Prefer current protocol errors over stale transport details and suppress meaningless `N/A` error suffixes.
+- Avoid transient QML null-to-integer warnings while optimistic slider values are installed.
+- Commit the last actual ambient/volume slider position instead of allowing the external state binding to restore and resend the previous value at pointer release.
 
 ### Security
 
@@ -23,4 +41,5 @@ All notable changes will be documented here. The format follows Keep a Changelog
 - Bluetooth MAC addresses are excluded from the QML-facing state document.
 - Firmware flashing, factory reset, cloud/account functions, tracking, and 360 Reality Audio are explicitly out of scope.
 
-[Unreleased]: https://github.com/VyomJain6904/sony-headphones-omarchy/compare/HEAD...HEAD
+[Unreleased]: https://github.com/VyomJain6904/sony-headphones-omarchy/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/VyomJain6904/sony-headphones-omarchy/releases/tag/v0.2.0

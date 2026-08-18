@@ -1,0 +1,68 @@
+diff --git a/libmdr/src/Generated/ProtocolV2T1Validation.cpp b/libmdr/src/Generated/ProtocolV2T1Validation.cpp
+index e68fd93..14026d0 100644
+--- a/libmdr/src/Generated/ProtocolV2T1Validation.cpp
++++ b/libmdr/src/Generated/ProtocolV2T1Validation.cpp
+@@ -331,7 +331,6 @@ MDRResult<void> AudioNtfyParamConnection::Validate(const AudioNtfyParamConnectio
+     MDR_VALIDATE(is_valid(data.type));
+     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
+     MDR_VALIDATE(is_valid(data.settingValue));
+-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> AudioNtfyParamConnectionModeClassicAudioLeAudio::Validate(const AudioNtfyParamConnectionModeClassicAudioLeAudio& data) {
+@@ -340,7 +339,6 @@ MDRResult<void> AudioNtfyParamConnectionModeClassicAudioLeAudio::Validate(const
+     MDR_VALIDATE(is_valid(data.type));
+     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
+     MDR_VALIDATE(is_valid(data.settingValue));
+-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+     // data.switchingStream ignored: OUT_OF_RANGE is expected
+     return MDRResult<void>::Success();
+ }
+@@ -350,7 +348,6 @@ MDRResult<void> AudioNtfyParamConnectionWithLdacStatus::Validate(const AudioNtfy
+     MDR_VALIDATE(is_valid(data.type));
+     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS);
+     MDR_VALIDATE(is_valid(data.settingValue));
+-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> AudioNtfyParamUpscaling::Validate(const AudioNtfyParamUpscaling& data) {
+@@ -467,7 +464,6 @@ MDRResult<void> AudioRetParamConnection::Validate(const AudioRetParamConnection&
+     MDR_VALIDATE(data.command == Command::AUDIO_RET_PARAM);
+     // data.type ignored: OUT_OF_RANGE is expected
+     MDR_VALIDATE(is_valid(data.settingValue));
+-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> AudioRetParamConnectionWithLdacStatus::Validate(const AudioRetParamConnectionWithLdacStatus& data) {
+@@ -476,7 +472,6 @@ MDRResult<void> AudioRetParamConnectionWithLdacStatus::Validate(const AudioRetPa
+     MDR_VALIDATE(is_valid(data.type));
+     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS);
+     MDR_VALIDATE(is_valid(data.settingValue));
+-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> AudioRetParamListeningOptionAssignCustomizable::Validate(const AudioRetParamListeningOptionAssignCustomizable& data) {
+@@ -628,7 +623,6 @@ MDRResult<void> AudioSetParamConnection::Validate(const AudioSetParamConnection&
+     MDR_VALIDATE(is_valid(data.type));
+     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
+     MDR_VALIDATE(is_valid(data.settingValue));
+-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> AudioSetParamConnectionModeClassicAudioLeAudio::Validate(const AudioSetParamConnectionModeClassicAudioLeAudio& data) {
+@@ -637,7 +631,6 @@ MDRResult<void> AudioSetParamConnectionModeClassicAudioLeAudio::Validate(const A
+     MDR_VALIDATE(is_valid(data.type));
+     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
+     MDR_VALIDATE(is_valid(data.settingValue));
+-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+     // data.value2 ignored: OUT_OF_RANGE is expected
+     return MDRResult<void>::Success();
+ }
+@@ -647,7 +640,6 @@ MDRResult<void> AudioSetParamConnectionWithLdacStatus::Validate(const AudioSetPa
+     MDR_VALIDATE(is_valid(data.type));
+     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS);
+     MDR_VALIDATE(is_valid(data.settingValue));
+-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> AudioSetParamListeningOptionAssignCustomizable::Validate(const AudioSetParamListeningOptionAssignCustomizable& data) {

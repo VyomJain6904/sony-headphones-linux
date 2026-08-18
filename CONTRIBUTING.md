@@ -21,4 +21,6 @@ Before a pull request:
 ctest --test-dir build/native --output-on-failure
 ```
 
+On Omarchy, run `./scripts/qml-lint.sh` and `omarchy plugin validate "$PWD"`. Maintainers use `./scripts/release-check.sh` for the full pinned backend and sanitizer gate.
+
 Hardware changes also require a compatibility-matrix update and a short test log in the pull request.

@@ -18,5 +18,11 @@ int main() {
   command = {sony::CommandKind::Volume, {}, 63};
   assert(backend->handle(command).ok);
   assert(backend->state().playback.volume == 63);
+
+  command = {sony::CommandKind::EqualizerPreset, "bass", 0};
+  assert(backend->handle(command).ok);
+  assert(backend->state().equalizer.preset == "bass");
+  command = {sony::CommandKind::EqualizerPreset, "gaming", 0};
+  assert(!backend->handle(command).ok);
   std::cout << "mock_test: passed\n";
 }

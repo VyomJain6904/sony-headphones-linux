@@ -3,6 +3,8 @@ set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 project_dir="$(cd -- "$script_dir/.." && pwd)"
+# Resolved from this script's runtime directory.
+# shellcheck disable=SC1091
 source "$script_dir/libmdr-version.sh"
 
 destination="${SONY_LIBMDR_SOURCE_DIR:-$project_dir/.deps/SonyHeadphonesClient}"
