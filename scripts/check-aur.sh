@@ -25,6 +25,11 @@ if [ "$pkgbuild_libmdr" != "$LIBMDR_COMMIT" ] || [ "$pkgbuild_fmt" != "$FMT_COMM
   exit 1
 fi
 
+if grep -Eq "^[[:space:]]*'SKIP'[[:space:]]*$" "$pkgbuild"; then
+  printf 'Every stable AUR source must have a final integrity hash.\n' >&2
+  exit 1
+fi
+
 # The single-quoted expression intentionally matches a literal "$HOME" token.
 # shellcheck disable=SC2016
 if grep -En '(\$HOME|/home/|~/|\.config/omarchy/plugins)' \

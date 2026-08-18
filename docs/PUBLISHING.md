@@ -92,7 +92,7 @@ The stable package builds from the signed version tag and declares three immutab
 - SonyHeadphonesClient/libmdr commit `db0ae2574d8f8e1407e8ea28a7ee87db9dde1c24`;
 - fmt commit `407c905e45ad75fc29bf0f9bb7c5c2fd3475976f`.
 
-All archives require SHA-256 hashes. The libmdr and fmt patches are applied during `prepare()`. CMake receives `FETCHCONTENT_FULLY_DISCONNECTED=ON` and the already verified fmt source directory, so `build()` cannot fetch undeclared dependencies.
+All archives require SHA-256 hashes. The libmdr and fmt patches are applied during `prepare()`, which also removes upstream's forced linker stripping so makepkg owns Arch's strip/debug policy. CMake receives `FETCHCONTENT_FULLY_DISCONNECTED=ON` and the already verified fmt source directory, so `build()` cannot fetch undeclared dependencies.
 
 After creating the upstream tag, calculate the application archive hash, update `PKGBUILD`, regenerate `.SRCINFO`, and run:
 
@@ -100,7 +100,7 @@ After creating the upstream tag, calculate the application archive hash, update 
 ./scripts/check-aur.sh
 cd packaging/aur
 makepkg --verifysource
-makepkg --cleanbuild --syncdeps
+makepkg --clean --cleanbuild --syncdeps
 namcap PKGBUILD sony-headphones-omarchy-*.pkg.tar.zst
 ```
 

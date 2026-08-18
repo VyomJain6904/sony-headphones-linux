@@ -8,7 +8,7 @@
 - Reviewed commit: `db0ae2574d8f8e1407e8ea28a7ee87db9dde1c24`
 - License: MIT
 - Purpose: Sony MDR v1/v2 packet handling and Linux Bluetooth transport
-- Local changes: `patches/libmdr-v2-connection-priority-validation.patch` removes generated v2 validation that incorrectly rejected the valid `SOUND_QUALITY_PRIOR` connection-priority value reported by WH-1000XM5 firmware 2.5.1. `scripts/build.sh` verifies the immutable upstream commit and applies this reviewed patch deterministically before compilation.
+- Local changes: `patches/libmdr-v2-connection-priority-validation.patch` removes generated v2 validation that incorrectly rejected the valid `SOUND_QUALITY_PRIOR` connection-priority value reported by WH-1000XM5 firmware 2.5.1. `scripts/build.sh` verifies the immutable upstream commit and applies this reviewed patch deterministically before compilation. The AUR `prepare()` step also removes upstream's forced linker stripping flag so makepkg can apply Arch's normal strip/debug policy.
 - Notice: `licenses/libmdr-LICENSE`
 
 ### fmt

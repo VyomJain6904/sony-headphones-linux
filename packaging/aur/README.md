@@ -11,12 +11,16 @@ Run these commands after the signed upstream tag exists and the first source che
 ```sh
 cd packaging/aur
 makepkg --verifysource
-makepkg --cleanbuild --syncdeps
+makepkg --clean --cleanbuild --syncdeps
 makepkg --printsrcinfo > .SRCINFO.generated
 diff -u .SRCINFO .SRCINFO.generated
 rm .SRCINFO.generated
 namcap PKGBUILD sony-headphones-omarchy-*.pkg.tar.zst
 ```
+
+`bluez` is an intentional runtime dependency even though `namcap` cannot see it through ELF linkage: the daemon discovers and controls the headset through the BlueZ D-Bus service. When the local makepkg configuration emits an automatic `-debug` package, `namcap` may also report cross-package build-ID links whose targets live in the main package; inspect both archives together.
+
+Keep `--clean` enabled when building inside the upstream plugin checkout. makepkg's temporary `src/` archive links are valid package-build artifacts, but Omarchy intentionally rejects every symlink it finds in a plugin directory during later validation.
 
 For the strongest release check, build the same files in a clean Arch chroot with `extra-x86_64-build` from `devtools`.
 

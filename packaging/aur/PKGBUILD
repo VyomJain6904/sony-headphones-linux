@@ -22,7 +22,7 @@ source=(
   "fmt-${_fmt_commit}.tar.gz::https://github.com/fmtlib/fmt/archive/${_fmt_commit}.tar.gz"
 )
 sha256sums=(
-  'SKIP'
+  'd2118b33ef893a5247356ce360a401fb230fad2cece1921761ef3f921a3057ae'
   'd4dfd5b823c3819a5d2fc0bd5f6534db4fa882d379a94e8f122e0ed3445cddc2'
   '2bc1fe4a5b6d5d6a614239b4ca1d520e66e152a02d3d262684d26dfd6ab3438a'
 )
@@ -32,6 +32,11 @@ prepare() {
     < "sony-headphones-omarchy-${pkgver}/patches/libmdr-v2-connection-priority-validation.patch"
   patch -d "fmt-${_fmt_commit}" -p1 \
     < "SonyHeadphonesClient-${_libmdr_commit}/contrib/fmt.patch"
+
+  grep -Fq 'add_link_options(-Wl,--gc-sections -s)' \
+    "SonyHeadphonesClient-${_libmdr_commit}/CMakeLists.txt"
+  sed -i 's/add_link_options(-Wl,--gc-sections -s)/add_link_options(-Wl,--gc-sections)/' \
+    "SonyHeadphonesClient-${_libmdr_commit}/CMakeLists.txt"
 }
 
 build() {

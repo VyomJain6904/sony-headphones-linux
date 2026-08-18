@@ -90,7 +90,7 @@ Run `scripts/uninstall.sh` before `omarchy plugin remove`. The script removes th
 
 The stable package under `packaging/aur/` is deliberately separate from the source installer. Pacman owns the native executables and systemd user unit under `/usr`; Omarchy owns the QML checkout under the current user's configuration directory.
 
-The package's `source=()` contains the application release, pinned libmdr commit, and pinned fmt commit. `prepare()` applies both reviewed patches, and `build()` configures CMake with `FETCHCONTENT_FULLY_DISCONNECTED=ON`. Do not replace this with `scripts/build.sh`, because that developer script may fetch a missing dependency before compilation.
+The package's `source=()` contains the application release, pinned libmdr commit, and pinned fmt commit. `prepare()` applies both reviewed patches and removes upstream's forced linker stripping so makepkg owns the normal Arch strip/debug policy. `build()` configures CMake with `FETCHCONTENT_FULLY_DISCONNECTED=ON`. Do not replace this with `scripts/build.sh`, because that developer script may fetch a missing dependency before compilation.
 
 After the upstream tag and archive checksum exist:
 
@@ -98,7 +98,7 @@ After the upstream tag and archive checksum exist:
 ./scripts/check-aur.sh
 cd packaging/aur
 makepkg --verifysource
-makepkg --cleanbuild --syncdeps
+makepkg --clean --cleanbuild --syncdeps
 ```
 
 Generate `.SRCINFO` from the final PKGBUILD and commit both whenever package metadata changes. Use a clean chroot and `namcap` before AUR submission; see `packaging/aur/README.md`.

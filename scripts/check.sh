@@ -30,7 +30,9 @@ if find "$project_dir/scripts" -maxdepth 1 -type f -name '*.sh' ! -perm -0100 -p
   printf 'Every script under scripts/ must be executable.\n' >&2
   exit 1
 fi
-if find "$project_dir" -path "$project_dir/build" -prune -o -path "$project_dir/.deps" -prune -o -type l -print -quit | grep -q .; then
+if find "$project_dir" -path "$project_dir/build" -prune -o -path "$project_dir/.deps" -prune \
+  -o -path "$project_dir/packaging/aur/pkg" -prune -o -path "$project_dir/packaging/aur/src" -prune \
+  -o -type l -print -quit | grep -q .; then
   printf 'Repository contains a symlink; plugin distributions may not contain symlinks.\n' >&2
   exit 1
 fi
@@ -41,6 +43,7 @@ if grep -RIn --exclude-dir=build --exclude-dir=.deps --exclude-dir=graphify-out 
   exit 1
 fi
 if find "$project_dir" -path "$project_dir/build" -prune -o -path "$project_dir/.deps" -prune \
+  -o -path "$project_dir/packaging/aur/pkg" -prune -o -path "$project_dir/packaging/aur/src" -prune \
   -o -type f -name '*.py' -print -quit | grep -q .; then
   printf 'Python source found; the project intentionally has no Python runtime or build scripts.\n' >&2
   exit 1
