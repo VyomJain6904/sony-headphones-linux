@@ -73,10 +73,12 @@ Passed:
 - User service is enabled and active; plugin remains enabled in the right bar section
 - Signed public candidate commit `9359a5d` is GitHub-verified and its push CI passed
 - `omarchy plugin add` cloned the public HTTPS URL at `9359a5d` into an isolated temporary home and the cloned tree passed the Omarchy validator
+- `omarchy plugin update` fast-forwarded that isolated checkout to signed follow-up `043e074`, validation passed again, and `omarchy plugin remove` deleted it cleanly
+- The isolated lifecycle profile and shell shim were removed; the live user service remained enabled/active and the live plugin remained enabled in the right-bar layout
 
 Still required before a stable multi-device release:
 
-- Clean-account Git add/update/remove test and full mouse interaction pass
+- Full mouse interaction pass on a second clean user account
 - Bluetooth power-cycle, BlueZ restart, sleep/resume, and soak testing
 - MDR v1 over-ear and true-wireless hardware evidence
 - Release binary/license review and reproducible packaging if binaries are distributed

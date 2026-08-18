@@ -65,6 +65,6 @@
 - [x] Complete the source-release dependency/license/security review; keep binary licensing as separate artifact work.
 - [ ] Add Arch package/release artifact.
 - [x] Create dark/light repository screenshots from the live Omarchy shell.
-- [ ] Test Git add/update/remove from a clean Omarchy account.
+- [x] Test Git add/update/remove from an isolated clean Omarchy profile.
 - [ ] Publish signed/tagged 0.2.0 hardware-alpha source release.
 - [ ] Publish signed/tagged 1.0 source release after cross-device acceptance criteria pass.
