@@ -75,6 +75,8 @@ Passed:
 - `omarchy plugin add` cloned the public HTTPS URL at `9359a5d` into an isolated temporary home and the cloned tree passed the Omarchy validator
 - `omarchy plugin update` fast-forwarded that isolated checkout to signed follow-up `043e074`, validation passed again, and `omarchy plugin remove` deleted it cleanly
 - The isolated lifecycle profile and shell shim were removed; the live user service remained enabled/active and the live plugin remained enabled in the right-bar layout
+- GitHub marks the annotated `v0.2.0` tag signature valid; tag CI passed both the native-core and Arch full-backend jobs
+- The non-draft `v0.2.0` hardware-alpha prerelease was published source-only with no uploaded binary assets
 
 Still required before a stable multi-device release:
 

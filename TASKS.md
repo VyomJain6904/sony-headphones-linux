@@ -66,5 +66,5 @@
 - [ ] Add Arch package/release artifact.
 - [x] Create dark/light repository screenshots from the live Omarchy shell.
 - [x] Test Git add/update/remove from an isolated clean Omarchy profile.
-- [ ] Publish signed/tagged 0.2.0 hardware-alpha source release.
+- [x] Publish signed/tagged 0.2.0 hardware-alpha source release.
 - [ ] Publish signed/tagged 1.0 source release after cross-device acceptance criteria pass.
