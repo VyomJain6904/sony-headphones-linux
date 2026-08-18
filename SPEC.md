@@ -76,6 +76,7 @@ Development runtime:
 - Conversation: Speak-to-Chat only when supported.
 - Equalizer: presets/DSEE and later custom bands only when supported.
 - The volume section appears only when its capability exists. Transport playback controls are not exposed in the panel.
+- Volume remains a normalized `0..100` public value. MDR hardware's 31 raw levels (`0..30`) are converted at the native protocol boundary, and the panel settles committed values to the nearest representable percentage.
 - Errors are short, actionable, and never expose raw packet data by default.
 - The panel consumes Omarchy's live `Color` and `Style` tokens, native controls, panel padding, and standard `ScrollView`; it must update without a shell restart when the theme changes.
 - Action buttons use content-sized native controls arranged in responsive rows whose contents are centered. Toggle rows, sliders, battery rows, and headings remain full-width.
@@ -153,6 +154,7 @@ playback play|pause|next|previous
 The CLI is the only supported shell-facing client. It validates argument shape before contacting the daemon, and the daemon rejects a preset that the current device state did not advertise in `equalizer.available_presets`.
 
 The v1 state and command schemas retain playback fields and commands for backward compatibility, but the Omarchy panel does not expose transport playback controls.
+The `volume` command and `playback.volume` state field are normalized percentages. The MDR backend maps them to and from the device's discrete `0..30` scale; callers must tolerate state settling to the nearest representable percentage.
 
 ## 6. Native design
 

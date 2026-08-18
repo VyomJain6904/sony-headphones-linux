@@ -8,18 +8,20 @@ The project is a hardware alpha. Its complete local control path has been tested
 | --- | --- |
 | ![Sony Headphones panel using an Omarchy dark theme](docs/screenshots/panel-dark.png) | ![Sony Headphones panel using an Omarchy light theme](docs/screenshots/panel-light.png) |
 
+The compact panel follows Omarchy's live palette and control tokens, so its background, borders, text, selected states, and icons update with the active system theme.
+
 ## Current control surface
 
 - Main, left, right, and case battery where reported
 - Noise cancellation, ambient sound level, and focus on voice
 - Speak-to-Chat
 - DSEE and equalizer presets only when the daemon reports the writable preset list
-- Headphone volume
+- Headphone volume, normalized from Sony's 31 hardware levels to a `0–100` percentage
 - Connection quality/stability preference
 
 Controls are capability-gated. A device that does not report a feature does not receive a dead toggle.
 
-Action buttons are centered in responsive rows. The panel follows Omarchy's keyboard model: Up/Down moves between control groups, Left/Right moves within a button row or adjusts a slider, Enter/Space activates the current control, Escape closes, and Tab/Shift+Tab switches neighboring bar panels. Transport playback buttons are intentionally not shown.
+Action buttons are centered in responsive rows, and the sound-control modes pair clear icons with their labels. The deliberately compact panel keeps native text and control sizing and scrolls when its lower sections exceed the available height. It follows Omarchy's keyboard model: Up/Down moves between control groups, Left/Right moves within a button row or adjusts a slider, Enter/Space activates the current control, Escape closes, and Tab/Shift+Tab switches neighboring bar panels. Transport playback buttons are intentionally not shown.
 
 Adaptive ambient tuning, custom EQ bands/Clear Bass, multipoint management, auto-off, wearing/auto-pause, assignable controls, voice guidance, pairing, and shutdown remain planned and are tracked in [TASKS.md](TASKS.md).
 

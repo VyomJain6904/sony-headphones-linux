@@ -112,8 +112,8 @@ Item {
   function setEqualizerPreset(preset) { _send(["eq-preset", preset], "equalizerPreset", preset) }
   function setConnectionPriority(priority) { _send(["connection", priority], "connectionPriority", priority) }
   function setVolume(value) {
-    var clamped = Model.clamp(Math.round(value), 0, 100)
-    _send(Model.volumeArgs(clamped), "volume", clamped)
+    var canonical = Model.canonicalVolumePercent(value)
+    _send(Model.volumeArgs(canonical), "volume", canonical)
   }
   Timer {
     id: settleTimer

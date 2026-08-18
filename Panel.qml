@@ -30,23 +30,23 @@ Panel {
     var actions = []
     if (!service || !service.connected) return actions
     if (service.status.capabilities.noiseCancelling)
-      actions.push({ key: Model.NOISE_ANC, label: "Noise cancelling", icon: "", selected: service.noiseMode === Model.NOISE_ANC })
+      actions.push({ key: Model.NOISE_ANC, label: "Noise cancelling", glyph: "", selected: service.noiseMode === Model.NOISE_ANC })
     if (service.status.capabilities.ambientSound)
-      actions.push({ key: Model.NOISE_AMBIENT, label: "Ambient", icon: "", selected: service.noiseMode === Model.NOISE_AMBIENT })
-    actions.push({ key: Model.NOISE_OFF, label: "Off", icon: "", selected: service.noiseMode === Model.NOISE_OFF })
+      actions.push({ key: Model.NOISE_AMBIENT, label: "Ambient", glyph: "", selected: service.noiseMode === Model.NOISE_AMBIENT })
+    actions.push({ key: Model.NOISE_OFF, label: "Off", glyph: "", selected: service.noiseMode === Model.NOISE_OFF })
     return actions
   }
   readonly property var equalizerActions: {
     var actions = []
     for (var index = 0; index < eqPresets.length; ++index) {
       var preset = eqPresets[index]
-      actions.push({ key: preset, label: Model.presetLabel(preset), icon: "", selected: service && service.equalizerPreset === preset })
+      actions.push({ key: preset, label: Model.presetLabel(preset), glyph: "", selected: service && service.equalizerPreset === preset })
     }
     return actions
   }
   readonly property var connectionActions: service && service.connected && service.status.capabilities.connectionMode ? [
-    { key: "quality", label: "Sound quality", icon: "", selected: service.connectionPriority === "quality" },
-    { key: "stable", label: "Stable connection", icon: "", selected: service.connectionPriority === "stable" }
+    { key: "quality", label: "Sound quality", glyph: "", selected: service.connectionPriority === "quality" },
+    { key: "stable", label: "Stable connection", glyph: "", selected: service.connectionPriority === "stable" }
   ] : []
   readonly property var visibleSections: {
     var sections = []
@@ -204,8 +204,8 @@ Panel {
     bar: root.bar
     open: root.opened
     focusTarget: keyCatcher
-    contentWidth: panel.fittedContentWidth(Style.space(380))
-    contentHeight: panel.fittedContentHeight(content.implicitHeight, Style.space(560))
+    contentWidth: panel.fittedContentWidth(Style.space(360))
+    contentHeight: panel.fittedContentHeight(content.implicitHeight, Style.space(520))
 
     PanelKeyCatcher {
       id: keyCatcher
@@ -495,12 +495,12 @@ Panel {
 
   component ActionButton: Button {
     id: action
-    property string icon: ""
+    property string glyph: ""
     property string label: ""
     signal triggered()
 
     text: label
-    iconText: icon
+    iconText: action.glyph
     bordered: true
     foreground: root.foreground
     accent: Color.accent
@@ -554,7 +554,7 @@ Panel {
                 required property int index
                 readonly property int actionIndex: rowSlot.index * buttonGroup.columnCount + index
 
-                icon: modelData.icon || ""
+                glyph: String(modelData.glyph || "")
                 label: modelData.label || ""
                 selected: modelData.selected === true
                 hasCursor: root.cursorActive && root.focusSection === buttonGroup.sectionName

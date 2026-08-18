@@ -17,6 +17,8 @@ var NOISE_AMBIENT = "ambient"
 
 var MAX_ERROR_CHARS = 160
 var HEADPHONES_ICON = "󰋋"
+var MDR_VOLUME_MAXIMUM = 30
+var VOLUME_PERCENT_MAXIMUM = 100
 
 function defaultBattery() {
   return { present: false, level: UNKNOWN_LEVEL, charging: "unknown" }
@@ -329,6 +331,20 @@ function ambientArgs(level) {
   return ["ambient-level", String(clamp(intOr(level, 1), 1, 20))]
 }
 
+function mdrVolumeToPercent(level) {
+  var clamped = clamp(intOr(level, 0), 0, MDR_VOLUME_MAXIMUM)
+  return Math.round(clamped * VOLUME_PERCENT_MAXIMUM / MDR_VOLUME_MAXIMUM)
+}
+
+function percentToMdrVolume(percent) {
+  var clamped = clamp(intOr(percent, 0), 0, VOLUME_PERCENT_MAXIMUM)
+  return Math.round(clamped * MDR_VOLUME_MAXIMUM / VOLUME_PERCENT_MAXIMUM)
+}
+
+function canonicalVolumePercent(percent) {
+  return mdrVolumeToPercent(percentToMdrVolume(percent))
+}
+
 function volumeArgs(volume) {
-  return ["volume", String(clamp(intOr(volume, 0), 0, 100))]
+  return ["volume", String(clamp(intOr(volume, 0), 0, VOLUME_PERCENT_MAXIMUM))]
 }

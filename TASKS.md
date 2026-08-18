@@ -21,6 +21,8 @@
 - [x] Verify shell summon/hide and persistence across an Omarchy shell restart.
 - [x] Verify native theme controls, icon rendering, standard scrolling, and live dark/light palette changes.
 - [x] Verify Escape and arrow-key cursor navigation in the live Omarchy shell.
+- [x] Add labeled, theme-aware icons to the sound-control mode buttons.
+- [x] Compact the panel footprint without reducing control or text sizing.
 - [ ] Verify mouse click and disable/re-enable on a clean user account.
 
 ## Native service
@@ -36,6 +38,7 @@
 - [x] Verify a full real-backend compile/link with the exact Debian BlueZ development package in a temporary sysroot.
 - [x] Verify normal real-backend builds with installed BlueZ development headers on Omarchy.
 - [x] Test the implemented control surface against WH-1000XM5 firmware 2.5.1.
+- [x] Normalize the public percentage volume contract to Sony MDR's 31 hardware levels.
 - [ ] Add BLE/LE Audio transport after a real device proves it necessary.
 
 ## Reliability and performance

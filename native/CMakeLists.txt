@@ -74,4 +74,8 @@ if(BUILD_TESTING)
   add_executable(sony-mock-test tests/mock_test.cpp)
   target_link_libraries(sony-mock-test PRIVATE sony-headphones-core)
   add_test(NAME mock-backend COMMAND sony-mock-test)
+
+  add_executable(sony-volume-test tests/volume_test.cpp)
+  target_link_libraries(sony-volume-test PRIVATE sony-headphones-core)
+  add_test(NAME volume-conversion COMMAND sony-volume-test)
 endif()

@@ -1,4 +1,5 @@
 #include "sony/backend.hpp"
+#include "sony/volume.hpp"
 
 #include <dbus/dbus.h>
 #include <mdr-bt/ConnectionLinux.h>
@@ -664,7 +665,7 @@ class MdrBackend final : public Backend {
     }
     MDRPlayback playback{};
     if (mdrHeadphonesGetPlayback(headphones_.get(), &playback) == MDR_RESULT_OK) {
-      state_.playback = {playbackName(playback.status), static_cast<int>(playback.volume)};
+      state_.playback = {playbackName(playback.status), mdrVolumeToPercent(static_cast<int>(playback.volume))};
     }
     MDRConnectionMode connection{};
     if (mdrHeadphonesGetConnectionMode(headphones_.get(), &connection) == MDR_RESULT_OK)
@@ -734,7 +735,7 @@ class MdrBackend final : public Backend {
     MDRPlayback value{};
     MDRResult result = mdrHeadphonesGetPlayback(headphones_.get(), &value);
     if (result != MDR_RESULT_OK) return result;
-    value.volume = static_cast<uint8_t>(command.number);
+    value.volume = static_cast<uint8_t>(percentToMdrVolume(command.number));
     return mdrHeadphonesSetPlayback(headphones_.get(), &value);
   }
 

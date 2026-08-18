@@ -10,7 +10,7 @@ Controls are exposed from discovered capabilities, not a model allowlist. The na
 
 | Model | Firmware | Transport | Protocol | Read tests | Write tests | Status |
 |---|---|---|---|---|---|---|
-| WH-1000XM5 | 2.5.1 | Classic RFCOMM | MDR v2 | Identity, firmware, LDAC codec, main battery, capabilities, noise/ambient/focus, Speak-to-Chat, current EQ/DSEE, playback/volume, connection priority | ANC/ambient, ambient level, focus on voice, Speak-to-Chat, DSEE, play/pause, volume, quality/stability; every changed setting restored | Hardware-alpha pass on 2026-08-18 |
+| WH-1000XM5 | 2.5.1 | Classic RFCOMM | MDR v2 | Identity, firmware, LDAC codec, main battery, capabilities, noise/ambient/focus, Speak-to-Chat, current EQ/DSEE, playback/volume, connection priority | ANC/ambient, ambient level, focus on voice, Speak-to-Chat, DSEE, play/pause, normalized volume, quality/stability; every changed setting restored | Hardware-alpha pass on 2026-08-19 |
 
 Do not add a green/supported row without recording the firmware and actual read/write results.
 
@@ -28,7 +28,7 @@ Environment: Omarchy Quattro 4.0.0, WH-1000XM5 firmware 2.5.1, BlueZ 5.87, LDAC 
 
 The device reported these capabilities: main battery, playback metadata/control/volume, noise cancelling, ambient sound, Speak-to-Chat, equalizer, DSEE, paired-device management, pairing, general settings, noise-control button, auto-off, wearing detection, auto-pause, voice guidance, shutdown, connection mode, and safe listening. The UI still exposes only implemented, locally safe controls.
 
-Reversible write checks passed for ANC/ambient mode, ambient level `20 → 12 → 20`, focus on voice, Speak-to-Chat, DSEE, volume, play/pause, and connection priority `quality → stable → quality`. The state was re-read between writes and restored to the pre-test value.
+Reversible write checks passed for ANC/ambient mode, ambient level `20 → 12 → 20`, focus on voice, Speak-to-Chat, DSEE, volume, play/pause, and connection priority `quality → stable → quality`. The state was re-read between writes and restored to the pre-test value. Volume normalization was separately verified on 2026-08-19: MDR raw level `6` read as `20%`, `20 → 50 → 20` writes succeeded, and each normalized value was re-read from the device before restoring the original level.
 
 The current libmdr C ABI reports equalizer capability and the active preset but not the device's writable preset list. Schema v1 therefore publishes an empty `equalizer.available_presets`, the panel hides preset buttons, and direct preset commands are rejected. This is a deliberate capability gate, not a claim that the XM5 lacks EQ.
 

@@ -4,6 +4,15 @@ All notable changes will be documented here. The format follows Keep a Changelog
 
 ## [Unreleased]
 
+### Changed
+
+- Add labeled, theme-aware icons to the Noise cancelling, Ambient, and Off sound-control buttons.
+- Reduce the panel width and maximum height slightly while preserving control and text sizing.
+
+### Fixed
+
+- Normalize the public `0..100` volume contract to Sony MDR's raw `0..30` scale and settle the panel immediately to a representable hardware level.
+
 ## [0.2.0] - 2026-08-19
 
 ### Added
