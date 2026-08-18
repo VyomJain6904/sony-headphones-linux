@@ -7,7 +7,7 @@
 - [x] Define the permanent namespaced plugin ID.
 - [x] Document dependencies, privilege boundaries, and source-build policy.
 - [x] Make the maintained C++/QML project the repository root.
-- [ ] Publish this repository publicly so Omarchy can install it from Git.
+- [x] Publish this repository publicly so Omarchy can install it from Git.
 
 ## Omarchy plugin
 

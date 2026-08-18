@@ -71,6 +71,8 @@ Passed:
 - Panel-close 15-second RFCOMM release and panel-open resynchronization
 - Clean uninstall removed the service unit, binaries, plugin files, registry entry, and right-bar layout entry; a fresh reinstall restored and re-enabled the user service and plugin
 - User service is enabled and active; plugin remains enabled in the right bar section
+- Signed public candidate commit `9359a5d` is GitHub-verified and its push CI passed
+- `omarchy plugin add` cloned the public HTTPS URL at `9359a5d` into an isolated temporary home and the cloned tree passed the Omarchy validator
 
 Still required before a stable multi-device release:
 

@@ -39,8 +39,8 @@ Exit: compatibility claims are based on at least three protocol/form-factor grou
 - Implement paired-device status/actions with defensive confirmations.
 - Complete install, upgrade, and removal scripts for Omarchy.
 - Add package/release artifacts and checksums.
-- Add CI on current Debian and Arch containers.
-- Prepare public Git release metadata and optional preview images.
+- [x] Add two-tier Ubuntu/native-core and Arch/full-backend CI.
+- [x] Prepare public Git release metadata and dark/light preview images.
 
 Exit: reproducible release artifacts and documented upgrade path.
 
