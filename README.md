@@ -1,6 +1,8 @@
-# Sony Headphones for Omarchy
+# Sony Headphones for Linux
 
-A fast, native Omarchy Quattro bar widget for Sony headphones that use the Sony | Sound Connect protocol. It is designed around the WH-1000XM5, but discovers protocol capabilities at runtime so the same code can serve compatible WH, WF, WI, LinkBuds, ULT, and INZONE families without a hard-coded UI per model.
+A fast, native Linux service and CLI for Sony headphones that use the Sony | Sound Connect protocol. It publishes live headphone state as a standard JSON file and accepts commands over a private Unix socket, so any desktop environment, status bar, script, or automation tool can read and control the headphones. An included Omarchy Quattro bar widget provides a ready-made graphical interface.
+
+It is designed around the WH-1000XM5, but discovers protocol capabilities at runtime so the same code can serve compatible WH, WF, WI, LinkBuds, ULT, and INZONE families without a hard-coded UI per model.
 
 The project is a hardware alpha. Its complete local control path has been tested on one WH-1000XM5 running firmware 2.5.1, including reversible writes and RFCOMM release/reconnect. That evidence does not imply that every Sound Connect model is tested. See [TASKS.md](TASKS.md) and the [compatibility matrix](docs/COMPATIBILITY.md).
 
@@ -8,7 +10,7 @@ The project is a hardware alpha. Its complete local control path has been tested
 | --- | --- |
 | ![Sony Headphones panel using an Omarchy dark theme](docs/screenshots/panel-dark.png) | ![Sony Headphones panel using an Omarchy light theme](docs/screenshots/panel-light.png) |
 
-The compact panel follows Omarchy's live palette and control tokens, so its background, borders, text, selected states, and icons update with the active system theme.
+The included Omarchy panel follows Omarchy's live palette and control tokens. The daemon and CLI work independently on any Linux desktop.
 
 ## Current control surface
 
@@ -25,6 +27,69 @@ Action buttons are centered in responsive rows, and the sound-control modes pair
 
 Adaptive ambient tuning, custom EQ bands/Clear Bass, multipoint management, auto-off, wearing/auto-pause, assignable controls, voice guidance, pairing, and shutdown remain planned and are tracked in [TASKS.md](TASKS.md).
 
+## Integration
+
+The daemon and CLI are standalone Linux programs with no desktop-environment dependency. Any tool that can read a JSON file or run a shell command can integrate.
+
+### Status file
+
+The daemon atomically publishes state to:
+
+```text
+${XDG_STATE_HOME:-$HOME/.local/state}/sony-headphones/status.json
+```
+
+Watch it with `inotifywait`, poll it, or read it once. The JSON includes device identity, battery levels, noise mode, volume, EQ, capabilities, and connection phase.
+
+### CLI commands
+
+`sony-headphonesctl` validates and sends one command per invocation:
+
+```text
+sony-headphonesctl status
+sony-headphonesctl noise off|anc|ambient
+sony-headphonesctl ambient-level 1..20
+sony-headphonesctl focus-on-voice on|off
+sony-headphonesctl speak-to-chat on|off
+sony-headphonesctl dsee on|off
+sony-headphonesctl eq-preset <preset>
+sony-headphonesctl connection quality|stable
+sony-headphonesctl volume 0..100
+sony-headphonesctl playback play|pause|next|previous
+```
+
+### Quick examples
+
+**Waybar** custom module:
+
+```jsonc
+"custom/sony": {
+    "exec": "cat ~/.local/state/sony-headphones/status.json",
+    "return-type": "json",
+    "interval": 3,
+    "on-click": "sony-headphonesctl noise anc"
+}
+```
+
+**Polybar** script module:
+
+```ini
+[module/sony]
+type = custom/script
+exec = jq -r '"󰋋 " + (.battery.main.level|tostring) + "% [" + .noise.mode + "]"' ~/.local/state/sony-headphones/status.json
+interval = 3
+click-left = sony-headphonesctl noise anc
+```
+
+**Shell keybinding** (Hyprland, Sway, i3):
+
+```text
+bind = $mainMod, F9, exec, sony-headphonesctl noise anc
+bind = $mainMod, F10, exec, sony-headphonesctl noise ambient
+```
+
+See the full [integration guide](docs/INTEGRATION.md) for eww, AGS, i3status-rust, KDE Plasma, GNOME Shell, Python, and more.
+
 ## Deliberately excluded
 
 - 360 Reality Audio
@@ -37,30 +102,28 @@ Those functions are either outside a local desktop controller's purpose, carry u
 ## Architecture
 
 ```text
-Omarchy's existing Quickshell process
-  BarWidget.qml -> Panel.qml -> Service.qml
-                              watches status.json
-                              runs sony-headphonesctl for actions
-                                         |
-                                private Unix socket
-                                         |
-                                 sony-headphonesd
-                              BlueZ D-Bus + libmdr
-                                         |
-                                  Sony headphones
+Any frontend (Omarchy, Waybar, eww, scripts, …)
+  watches status.json | runs sony-headphonesctl
+                                   |
+                          private Unix socket
+                                   |
+                           sony-headphonesd
+                        BlueZ D-Bus + libmdr
+                                   |
+                            Sony headphones
 ```
 
-The QML layer never polls a command. The daemon keeps one event loop, publishes JSON atomically after changes, and opens Sony's RFCOMM control channel only while the panel or an action needs it. This limits idle work and reduces conflict with Sony's phone app.
+The daemon keeps one event loop, publishes JSON atomically after changes, and opens Sony's RFCOMM control channel only while an action needs it. This limits idle work and reduces conflict with Sony's phone app. The included Omarchy QML frontend watches the same JSON file and runs the same CLI.
 
-Read the full [architecture](docs/ARCHITECTURE.md) and [specification](SPEC.md).
+Read the full [architecture](docs/ARCHITECTURE.md), [specification](SPEC.md), and [integration guide](docs/INTEGRATION.md).
 
 ## Dependencies
 
 Runtime:
 
 - Linux with BlueZ and D-Bus
-- Omarchy Quattro/Quickshell for the plugin UI
 - `sony-headphonesd` and `sony-headphonesctl` built by this repository
+- Omarchy Quattro/Quickshell for the included graphical plugin (optional)
 
 Build:
 

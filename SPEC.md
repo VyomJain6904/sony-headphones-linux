@@ -5,7 +5,7 @@ Last updated: 2026-08-19
 
 ## 1. Product goal
 
-Provide a responsive, stable, keyboard-accessible Omarchy bar widget that exposes the useful local controls of Sony | Sound Connect headphones on Linux without a phone app, cloud service, Python process, or duplicate shell.
+Provide a native Linux service and CLI that exposes the useful local controls of Sony | Sound Connect headphones without a phone app, cloud service, or Python process. The daemon publishes a versioned JSON state file and accepts commands over a private Unix socket, allowing any desktop environment, status bar, or script to read and control the headphones. An included Omarchy Quattro bar widget provides a ready-made graphical frontend.
 
 The first reference device is WH-1000XM5. The design target is the broader set of headphones that speak Sony's MDR v1, MDR v2, or supported BLE control protocol. Compatibility is determined by transport and feature discovery, not by marketing-name allowlists.
 
@@ -13,16 +13,19 @@ The first reference device is WH-1000XM5. The design target is the broader set o
 
 Primary runtime:
 
-- Omarchy Quattro
-- Wayland
-- Omarchy's long-running Quickshell process
-- BlueZ and PipeWire/WirePlumber
+- Any Linux desktop with BlueZ and D-Bus (GNOME, KDE, Hyprland, Sway, i3, Omarchy, etc.)
+- Wayland or X11
 - systemd user services
+- PipeWire/WirePlumber or PulseAudio for audio (the daemon controls the headset, not the audio server)
+
+Included frontend:
+
+- Omarchy Quattro bar widget (requires Omarchy's long-running Quickshell process)
 
 Development runtime:
 
 - Debian with i3/X11 and Quickshell
-- Mock backend when the Omarchy `qs.Ui` module or Sony hardware is unavailable
+- Mock backend when Sony hardware is unavailable
 - Native unit tests independent of Bluetooth hardware
 
 ## 3. Scope

@@ -7,6 +7,11 @@ All notable changes will be documented here. The format follows Keep a Changelog
 ### Added
 
 - Publish `sony-headphones-omarchy` to the AUR.
+- Add integration guide with examples for Waybar, Polybar, eww, AGS, i3status-rust, Conky, Hyprland/Sway/i3 keybindings, Python, KDE Plasma, GNOME Shell, and any Quickshell config.
+
+### Changed
+
+- Broaden documentation, AUR description, and specification to present the native daemon and CLI as a standalone Linux service usable with any desktop environment or status bar.
 ## [0.2.1] - 2026-08-19
 
 ### Added
