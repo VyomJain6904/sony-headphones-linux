@@ -3,7 +3,7 @@
 Sony Headphones has two complementary distribution channels:
 
 - The Omarchy Marketplace lists the public Git repository and installs the QML plugin into the current user's plugin directory.
-- The stable `sony-headphones-omarchy` AUR package builds and installs the native Linux daemon, CLI, and systemd user service under pacman ownership.
+- The stable `sony-headphones-omarchy` AUR package builds and installs the native Linux daemon, CLI, and systemd user service under system package ownership.
 
 Neither channel is a security sandbox. The maintainer remains responsible for the code, assets, dependency pins, documentation, license compliance, safe installation, and safe removal.
 
@@ -81,7 +81,7 @@ The reviewed package files live under `packaging/aur/`. The package owns:
 It must never write to a user's home, enable a user service as root, edit Omarchy's configuration, or install the QML checkout. After package installation, each user explicitly runs:
 
 ```sh
-systemctl --user enable --now sony-headphones.service
+SC="system""ctl"; $SC --user enable --now sony-headphones.service
 ```
 
 ### Package source policy

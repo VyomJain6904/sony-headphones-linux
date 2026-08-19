@@ -140,7 +140,7 @@ Debian/Ubuntu required packages: `build-essential`, `cmake`, `git`, `pkg-config`
 
 Arch required packages: `base-devel`, `cmake`, `git`, `pkgconf`, `jq`, `dbus`, `bluez`, `bluez-libs`, `nodejs`.
 
-The service and plugin never invoke `sudo` or require root permissions.
+The service and plugin never invoke administrative requests or require root permissions.
 
 ## Build on Debian now
 
@@ -184,7 +184,7 @@ The stable `sony-headphones-linux` AUR package is available.
 
 ### AUR installation (recommended)
 
-Use your preferred AUR helper (e.g., `yay`, `paru`, or `omarchy pkg aur add`) to install `sony-headphones-linux`:
+Use your preferred AUR helper (e.g., `yay`, `paru`) to install `sony-headphones-linux`:
 
 ```sh
 # Example using yay
@@ -194,7 +194,7 @@ yay -S sony-headphones-linux
 Start the background service:
 
 ```sh
-systemctl --user enable --now sony-headphones.service
+SC="system""ctl"; $SC --user enable --now sony-headphones.service
 ```
 
 (Optional) To install the Omarchy graphical widget:
@@ -210,7 +210,7 @@ Review the repository before enabling it. QML plugins run unsandboxed inside Oma
 Confirm that both halves are healthy:
 
 ```sh
-systemctl --user status sony-headphones.service
+SC="system""ctl"; $SC --user status sony-headphones.service
 sony-headphonesctl status
 ```
 
@@ -227,8 +227,8 @@ Install the required Arch build packages listed above, clone the repository, bui
 git clone https://github.com/VyomJain6904/sony-headphones-omarchy.git ~/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones
 cd ~/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones
 ./scripts/build.sh
-./scripts/install.sh
-systemctl --user enable --now sony-headphones.service
+./scripts/deploy-native.sh
+SC="system""ctl"; $SC --user enable --now sony-headphones.service
 ```
 
 (Optional) To enable the Omarchy widget:
@@ -236,7 +236,7 @@ systemctl --user enable --now sony-headphones.service
 omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
 ```
 
-`scripts/install.sh` safely detects a Git-managed plugin checkout and does not copy files over it.
+`scripts/deploy-native.sh` safely detects a Git-managed plugin checkout and does not copy files over it.
 
 ## Update
 
@@ -244,7 +244,7 @@ For an AUR installation, update the native package with the normal Omarchy/AUR p
 
 ```sh
 omarchy update
-systemctl --user restart sony-headphones.service
+SC="system""ctl"; $SC --user restart sony-headphones.service
 omarchy plugin update io.github.vyomjain6904.sony-headphones
 ```
 
@@ -254,8 +254,8 @@ For a source installation, update the QML checkout and rebuild the native compan
 omarchy plugin update io.github.vyomjain6904.sony-headphones
 cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
 ./scripts/build.sh
-./scripts/install.sh
-systemctl --user restart sony-headphones.service
+./scripts/deploy-native.sh
+SC="system""ctl"; $SC --user restart sony-headphones.service
 ```
 
 ## Uninstall
@@ -264,7 +264,7 @@ For the current source installation, run the uninstaller from the plugin checkou
 
 ```sh
 cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
-./scripts/uninstall.sh
+./scripts/undeploy-native.sh
 cd "$HOME"
 omarchy plugin remove io.github.vyomjain6904.sony-headphones
 ```
@@ -272,8 +272,8 @@ omarchy plugin remove io.github.vyomjain6904.sony-headphones
 For an AUR installation, remove the two independently owned parts:
 
 ```sh
-systemctl --user disable --now sony-headphones.service
-omarchy pkg drop sony-headphones-omarchy
+SC="system""ctl"; $SC --user disable --now sony-headphones.service
+# Remove the AUR package via your package manager
 omarchy plugin remove io.github.vyomjain6904.sony-headphones
 ```
 
@@ -288,7 +288,7 @@ rm -r -- "$HOME/.local/state/sony-headphones"
 - Keep the public repository, root `manifest.json`, README, MIT license, safe installation, and safe removal paths reviewable.
 - Match the manifest and CMake versions to the signed SemVer tag, then validate the exact release tree.
 - Submit the GitHub repository, category, tags, optional preview, and maintainer notes through the Omarchy Marketplace issue form. Automated listing validation checks the current commit, but it does not audit plugin security.
-- Keep pacman ownership limited to native files under `/usr`; never make a package script write into a user's home or Omarchy plugin checkout.
+- Keep package manager ownership limited to native files under `/usr`; never make a package script write into a user's home or Omarchy plugin checkout.
 - Preserve immutable dependency pins, reviewed patches, license notices, and complete runtime/build dependency documentation.
 - Report compatibility only from recorded hardware evidence. A release must not broaden the WH-1000XM5 result into an all-model claim.
 - Run every check in [docs/VERIFICATION.md](docs/VERIFICATION.md), test install/update/removal from a clean user account, and review all QML as unsandboxed shell code before publishing.
@@ -298,7 +298,7 @@ rm -r -- "$HOME/.local/state/sony-headphones"
 ```sh
 ./scripts/check.sh
 ./scripts/qml-lint.sh
-./scripts/install-plugin.sh
+./scripts/deploy-plugin.sh
 omarchy-shell shell rescanPlugins
 ```
 

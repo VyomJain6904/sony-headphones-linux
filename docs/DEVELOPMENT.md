@@ -82,9 +82,9 @@ The wrapper selects Qt 6 and reproduces Quickshell's special `qs.Ui`/`qs.Commons
 
 ## Git-managed Omarchy workflow
 
-`omarchy plugin add <git-url>` clones the repository directly to `~/.config/omarchy/plugins/<id>`. Omarchy validates and discovers QML but intentionally runs no native installer hook. Build and install the daemon explicitly from that checkout. `scripts/install-plugin.sh` detects this layout and does not copy files over the source checkout.
+`omarchy plugin add <git-url>` clones the repository directly to `~/.config/omarchy/plugins/<id>`. Omarchy validates and discovers QML but intentionally runs no native installer hook. Build and install the daemon explicitly from that checkout. `scripts/deploy-plugin.sh` detects this layout and does not copy files over the source checkout.
 
-Run `scripts/uninstall.sh` before `omarchy plugin remove`. The script removes the user service and native binaries but preserves a git-managed checkout so Omarchy can remove it cleanly.
+Run `scripts/undeploy-native.sh` before `omarchy plugin remove`. The script removes the user service and native binaries but preserves a git-managed checkout so Omarchy can remove it cleanly.
 
 ## AUR package workflow
 

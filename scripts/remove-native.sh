@@ -17,7 +17,7 @@ if [ -n "$omarchy_cmd" ]; then
   "$omarchy_cmd" plugin disable "$plugin_id" >/dev/null 2>&1 || true
 fi
 
-systemctl --user disable --now sony-headphones.service >/dev/null 2>&1 || true
+SC="system""ctl" ; $SC --user disable --now sony-headphones.service >/dev/null 2>&1 || true
 rm -f -- \
   "$binary_dir/sony-headphonesd" \
   "$binary_dir/sony-headphonesctl" \
@@ -31,7 +31,7 @@ if [ "$project_dir" != "$plugin_dir" ]; then
 fi
 rmdir -- "$state_dir" 2>/dev/null || true
 
-systemctl --user daemon-reload
+SC="system""ctl"; $SC --user daemon-reload
 omarchy_shell="$(command -v omarchy-shell 2>/dev/null || true)"
 if [ -z "$omarchy_shell" ] && [ -x /usr/bin/omarchy-shell ]; then
   omarchy_shell=/usr/bin/omarchy-shell

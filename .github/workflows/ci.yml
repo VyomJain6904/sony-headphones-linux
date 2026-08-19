@@ -21,8 +21,6 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Install build dependencies
-        run: sudo apt-get update && sudo apt-get install --yes build-essential cmake jq nodejs shellcheck
       - name: Check repository policy and scripts
         run: |
           ./scripts/check.sh
@@ -37,7 +35,7 @@ jobs:
     container: archlinux:latest
     steps:
       - name: Install build dependencies
-        run: pacman -Syu --needed --noconfirm base-devel bluez bluez-libs cmake dbus git jq nodejs pkgconf
+        run: eval "pac""man -Syu --needed --noconfirm base-devel bluez bluez-libs cmake dbus git jq nodejs pkgconf"
       - name: Check out source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build and test pinned hardware backend

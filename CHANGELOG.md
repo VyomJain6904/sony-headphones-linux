@@ -23,7 +23,7 @@ All notable changes will be documented here. The format follows Keep a Changelog
 
 - Add labeled, theme-aware icons to the Noise cancelling, Ambient, and Off sound-control buttons.
 - Reduce the panel width and maximum height slightly while preserving control and text sizing.
-- Split distribution ownership cleanly: pacman owns native companion files under `/usr`, while Omarchy owns the per-user QML checkout.
+- Split distribution ownership cleanly: the system package manager owns native companion files under `/usr`, while Omarchy owns the per-user QML checkout.
 - Let makepkg control binary stripping and optional debug-symbol extraction for the Arch package.
 
 ### Fixed

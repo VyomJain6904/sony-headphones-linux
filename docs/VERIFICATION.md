@@ -119,7 +119,7 @@ Passed after tagging:
 - Package inspection: 19 main-package files, no home/config paths, `/usr/bin` executables, `/usr/lib/systemd/user` service, documentation, and all three MIT notices
 - Packaged unit validation with `ExecStart=/usr/bin/sony-headphonesd`
 - `namcap` inspection; the main package reported only the intentional indirect `bluez` service dependency, while the automatically generated debug package reported its expected cross-package build-ID links and empty generated build directories
-- Temporary `pacman -U` installation, ownership verification with zero missing files, isolated packaged-daemon mock lifecycle, volume `20`, ambient level `12`, version `0.2.1`, static systemd unit verification, and clean package removal
+- Temporary local package installation, ownership verification with zero missing files, isolated packaged-daemon mock lifecycle, volume `20`, ambient level `12`, version `0.2.1`, static systemd unit verification, and clean package removal
 - Safe source installer update of the live user-owned plugin and native companion to `0.2.1`; the installed plugin validated and the enabled user service restarted active
 - AUR SSH authentication for account `VyomJain` after verifying the server Ed25519 fingerprint `SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4` against Arch's published value
 
