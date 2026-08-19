@@ -6,7 +6,7 @@ project_dir="$(cd -- "$script_dir/.." && pwd)"
 aur_dir="$project_dir/packaging/aur"
 pkgbuild="$aur_dir/PKGBUILD"
 
-bash -n "$pkgbuild" "$aur_dir/sony-headphones-omarchy.install"
+bash -n "$pkgbuild" "$aur_dir/sony-headphones-linux.install"
 
 manifest_version="$(jq -r '.version' "$project_dir/manifest.json")"
 pkgbuild_version="$(sed -nE 's/^pkgver=([^[:space:]]+)$/\1/p' "$pkgbuild")"
@@ -33,7 +33,7 @@ fi
 # The single-quoted expression intentionally matches a literal "$HOME" token.
 # shellcheck disable=SC2016
 if grep -En '(\$HOME|/home/|~/|\.config/omarchy/plugins)' \
-  "$pkgbuild" "$aur_dir/sony-headphones-omarchy.install"; then
+  "$pkgbuild" "$aur_dir/sony-headphones-linux.install"; then
   printf 'The native AUR package must not write into a user home or own the QML plugin checkout.\n' >&2
   exit 1
 fi

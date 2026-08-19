@@ -1,6 +1,6 @@
 # Maintainer: Vyom Jain <vyom.malo6904@gmail.com>
 
-pkgname=sony-headphones-omarchy
+pkgname=sony-headphones-linux
 pkgver=0.2.1
 pkgrel=1
 pkgdesc="Native Sony Sound Connect headphones service and CLI for Linux"
@@ -10,8 +10,10 @@ license=('MIT')
 depends=('bluez' 'bluez-libs' 'dbus' 'glibc' 'libgcc' 'libstdc++')
 makedepends=('cmake' 'git' 'pkgconf')
 optdepends=('omarchy: graphical bar widget and control panel')
-provides=('sony-headphonesctl' 'sony-headphonesd')
-install="${pkgname}.install"
+provides=("sony-headphones-omarchy=$pkgver")
+conflicts=("sony-headphones-omarchy")
+replaces=("sony-headphones-omarchy")
+install="sony-headphones-linux.install"
 
 _libmdr_commit='db0ae2574d8f8e1407e8ea28a7ee87db9dde1c24'
 _fmt_commit='407c905e45ad75fc29bf0f9bb7c5c2fd3475976f'

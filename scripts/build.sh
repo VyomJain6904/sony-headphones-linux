@@ -58,6 +58,16 @@ if [ "$with_libmdr" -eq 1 ]; then
     exit 1
   fi
   git -C "$libmdr_source" diff --check
+  fmt_source="$("$script_dir/fetch-fmt.sh" | tail -n 1)"
+  if git -C "$fmt_source" apply --reverse --check "$libmdr_source/contrib/fmt.patch" >/dev/null 2>&1; then
+    : # Already applied in this working tree.
+  elif git -C "$fmt_source" apply --check "$libmdr_source/contrib/fmt.patch"; then
+    git -C "$fmt_source" apply "$libmdr_source/contrib/fmt.patch"
+  else
+    printf 'libmdr fmt patch does not apply cleanly to %s\n' "$FMT_COMMIT" >&2
+    exit 1
+  fi
+
   libmdr_build="$project_dir/build/libmdr"
   cmake -S "$libmdr_source" -B "$libmdr_build" \
     -DCMAKE_BUILD_TYPE=Release \
@@ -65,12 +75,9 @@ if [ "$with_libmdr" -eq 1 ]; then
     -DMDR_ENABLE_CODEGEN=OFF \
     -DMDR_ENABLE_LOG=OFF \
     -DMDR_BLE=OFF \
-    -DBUILD_TESTING=OFF
-  actual_fmt_commit="$(git -C "$libmdr_build/_deps/fmt-src" rev-parse HEAD)"
-  if [ "$actual_fmt_commit" != "$FMT_COMMIT" ]; then
-    printf 'fmt source is not at the reviewed commit: %s\n' "$actual_fmt_commit" >&2
-    exit 1
-  fi
+    -DBUILD_TESTING=OFF \
+    -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+    -DFETCHCONTENT_SOURCE_DIR_FMT="$fmt_source"
   cmake --build "$libmdr_build" --target mdr mdr-bt --parallel
   cmake_args+=(
     -DSONY_WITH_LIBMDR=ON

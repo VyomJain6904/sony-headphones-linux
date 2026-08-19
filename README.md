@@ -136,19 +136,11 @@ Build:
 
 No Python runtime or build step is used. The Sony protocol dependency is built from pinned C++ source. BlueZ and D-Bus remain distribution-owned because replacing security-sensitive system integration libraries with private copies would make updates and ABI management less reliable.
 
-Debian/Ubuntu package names:
+Debian/Ubuntu required packages: `build-essential`, `cmake`, `git`, `pkg-config`, `jq`, `libdbus-1-dev`, `libbluetooth-dev`, `nodejs`.
 
-```sh
-sudo apt install build-essential cmake git pkg-config jq libdbus-1-dev libbluetooth-dev nodejs
-```
+Arch required packages: `base-devel`, `cmake`, `git`, `pkgconf`, `jq`, `dbus`, `bluez`, `bluez-libs`, `nodejs`.
 
-Omarchy/Arch package names:
-
-```sh
-omarchy pkg add base-devel cmake git pkgconf jq dbus bluez bluez-libs nodejs
-```
-
-The service and plugin never invoke `sudo`.
+The service and plugin never invoke `sudo` or require root permissions.
 
 ## Build on Debian now
 
@@ -188,13 +180,25 @@ The graphical plugin and native companion have separate ownership:
 - Omarchy clones the QML plugin into the current user's configuration directory.
 - The prepared AUR package installs the daemon, CLI, user service, documentation, and license notices under `/usr`.
 
-The stable `sony-headphones-omarchy` AUR package is available.
+The stable `sony-headphones-linux` AUR package is available.
 
 ### AUR installation (recommended)
 
+Use your preferred AUR helper (e.g., `yay`, `paru`, or `omarchy pkg aur add`) to install `sony-headphones-linux`:
+
 ```sh
-omarchy pkg aur add sony-headphones-omarchy
+# Example using yay
+yay -S sony-headphones-linux
+```
+
+Start the background service:
+
+```sh
 systemctl --user enable --now sony-headphones.service
+```
+
+(Optional) To install the Omarchy graphical widget:
+```sh
 omarchy plugin add https://github.com/VyomJain6904/sony-headphones-omarchy.git
 omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
 ```
@@ -208,22 +212,27 @@ Confirm that both halves are healthy:
 ```sh
 systemctl --user status sony-headphones.service
 sony-headphonesctl status
+```
+
+For the Omarchy plugin, the ID is `io.github.vyomjain6904.sony-headphones`. You can validate it via:
+```sh
 omarchy plugin validate "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
 ```
 
-The plugin ID is `io.github.vyomjain6904.sony-headphones`.
-
 ### Source installation
 
-Install the required Arch build packages, clone the plugin, build its pinned native dependencies, and enable it:
+Install the required Arch build packages listed above, clone the repository, build its pinned native dependencies, and enable it:
 
 ```sh
-omarchy pkg add base-devel cmake git pkgconf jq dbus bluez bluez-libs nodejs
-omarchy plugin add https://github.com/VyomJain6904/sony-headphones-omarchy.git
-cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
+git clone https://github.com/VyomJain6904/sony-headphones-omarchy.git ~/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones
+cd ~/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones
 ./scripts/build.sh
 ./scripts/install.sh
 systemctl --user enable --now sony-headphones.service
+```
+
+(Optional) To enable the Omarchy widget:
+```sh
 omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
 ```
 
