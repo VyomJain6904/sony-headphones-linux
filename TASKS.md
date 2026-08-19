@@ -67,9 +67,10 @@
 - [x] Add source-checkout-aware install and uninstall scripts.
 - [x] Complete the source-release dependency/license/security review; keep binary licensing as separate artifact work.
 - [x] Add and validate stable AUR packaging for the native companion with immutable, checksummed sources and an offline build phase.
-- [ ] Submit `sony-headphones-omarchy` to the AUR after final maintainer review.
+- [x] Submit `sony-headphones-omarchy` to the AUR after final maintainer review.
 - [ ] Submit the v0.2.1 repository to the Omarchy Marketplace issue form.
 - [x] Create dark/light repository screenshots from the live Omarchy shell.
 - [x] Test Git add/update/remove from an isolated clean Omarchy profile.
 - [x] Publish signed/tagged 0.2.0 hardware-alpha source release.
+- [x] Publish signed/tagged 0.2.1 hardware-alpha source prerelease with no binary assets.
 - [ ] Publish signed/tagged 1.0 source release after cross-device acceptance criteria pass.

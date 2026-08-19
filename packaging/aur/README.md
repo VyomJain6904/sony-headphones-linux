@@ -2,7 +2,7 @@
 
 This directory is the reviewed source for the stable `sony-headphones-omarchy` AUR package. The AUR package owns only the native companion: `sony-headphonesd`, `sony-headphonesctl`, the systemd user unit, documentation, and license notices. Omarchy continues to own the QML plugin checkout under the user's configuration directory.
 
-The package is prepared for submission but is not yet published in the AUR. Do not advertise `omarchy pkg aur add sony-headphones-omarchy` as available until its AUR page exists.
+The package is published in the AUR at https://aur.archlinux.org/packages/sony-headphones-omarchy.
 
 ## Validate locally
 
@@ -24,16 +24,16 @@ Keep `--clean` enabled when building inside the upstream plugin checkout. makepk
 
 For the strongest release check, build the same files in a clean Arch chroot with `extra-x86_64-build` from `devtools`.
 
-## Submit later
+## Updating the AUR package
 
-An AUR account and an SSH public key registered with that account are separate from GitHub authentication. After local review:
+After a new version is released and the local PKGBUILD/SRCINFO are updated:
 
 ```sh
 git clone ssh://aur@aur.archlinux.org/sony-headphones-omarchy.git aur-sony-headphones-omarchy
 cp packaging/aur/PKGBUILD packaging/aur/.SRCINFO packaging/aur/sony-headphones-omarchy.install aur-sony-headphones-omarchy/
 cd aur-sony-headphones-omarchy
 git add PKGBUILD .SRCINFO sony-headphones-omarchy.install
-git commit -m "Initial import: sony-headphones-omarchy 0.2.1"
+git commit -m "Update sony-headphones-omarchy to <version>"
 git push
 ```
 

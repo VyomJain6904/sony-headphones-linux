@@ -4,6 +4,9 @@ All notable changes will be documented here. The format follows Keep a Changelog
 
 ## [Unreleased]
 
+### Added
+
+- Publish `sony-headphones-omarchy` to the AUR.
 ## [0.2.1] - 2026-08-19
 
 ### Added

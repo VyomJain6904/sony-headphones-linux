@@ -112,6 +112,7 @@ Passed after tagging:
 
 - Signed tag `v0.2.1` verification against the dedicated Ed25519 release key
 - GitHub Actions tag run `32185173699`, including policy/native-core and pinned Arch Bluetooth-backend jobs
+- Non-draft `v0.2.1` GitHub hardware-alpha prerelease published source-only with no uploaded binary assets
 - Immutable GitHub tag archive SHA-256 `d2118b33ef893a5247356ce360a401fb230fad2cece1921761ef3f921a3057ae`
 - `makepkg --verifysource` for the application, libmdr, and fmt archives
 - Exact tagged `makepkg --cleanbuild --syncdeps` build, including both patches, disconnected CMake configuration, and all four native CTest cases
@@ -122,4 +123,10 @@ Passed after tagging:
 - Safe source installer update of the live user-owned plugin and native companion to `0.2.1`; the installed plugin validated and the enabled user service restarted active
 - AUR SSH authentication for account `VyomJain` after verifying the server Ed25519 fingerprint `SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4` against Arch's published value
 
-The temporary package and `namcap` dependencies were removed after verification. The existing source-installed user service, QML plugin, and private state were preserved. No AUR repository was pushed and no Marketplace listing was submitted automatically.
+The temporary package and `namcap` dependencies were removed after verification. The existing source-installed user service, QML plugin, and private state were preserved. No Marketplace listing was submitted automatically.
+
+Passed after AUR publication:
+
+- AUR repository `sony-headphones-omarchy` initial import pushed with PKGBUILD, .SRCINFO, and sony-headphones-omarchy.install for version 0.2.1
+- AUR package page live at https://aur.archlinux.org/packages/sony-headphones-omarchy showing version 0.2.1-1, maintainer VyomJain, correct dependencies, and upstream URL
+- Repository documentation updated to reflect the live AUR listing

@@ -106,7 +106,7 @@ namcap PKGBUILD sony-headphones-omarchy-*.pkg.tar.zst
 
 Also run `extra-x86_64-build` from `devtools` when a clean Arch chroot is available. Inspect the resulting file list and dependency report before copying `PKGBUILD`, `.SRCINFO`, and `sony-headphones-omarchy.install` into the separate AUR Git repository.
 
-Do not submit the AUR package during this preparation release. Submission follows a final maintainer review and is documented in `packaging/aur/README.md`.
+The `sony-headphones-omarchy` AUR package is published. Future version updates follow the same clone/copy/commit/push workflow documented in `packaging/aur/README.md`.
 
 ## Release gate
 
@@ -135,7 +135,7 @@ Every hardware report must add its model, firmware, transport, protocol generati
 6. Create and verify a signed `v0.2.1` tag, push it, and wait for tag CI.
 7. Hash the immutable GitHub tag archive, replace the temporary application checksum in the AUR template, regenerate `.SRCINFO`, then validate and commit that packaging finalization on `main`.
 8. Publish the source-only GitHub prerelease. Do not attach native binaries without a separate reproducibility and license review.
-9. Manually submit the Omarchy Marketplace listing. Keep the AUR submission prepared but unpublished until explicitly approved.
+9. Push the updated AUR package metadata and manually submit the Omarchy Marketplace listing.
 
 Avoid force-pushing published release history. If native source changes, release notes must tell source-install users to rebuild and reinstall, while AUR users rebuild/update the package and restart their user service.
 

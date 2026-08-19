@@ -125,9 +125,32 @@ The graphical plugin and native companion have separate ownership:
 - Omarchy clones the QML plugin into the current user's configuration directory.
 - The prepared AUR package installs the daemon, CLI, user service, documentation, and license notices under `/usr`.
 
-The stable AUR package is prepared but is not listed yet. Until its AUR page is published, use the source installation below.
+The stable `sony-headphones-omarchy` AUR package is available.
 
-### Source installation available now
+### AUR installation (recommended)
+
+```sh
+omarchy pkg aur add sony-headphones-omarchy
+systemctl --user enable --now sony-headphones.service
+omarchy plugin add https://github.com/VyomJain6904/sony-headphones-omarchy.git
+omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
+```
+
+The AUR contains a source build description, not a project-supplied binary. Its immutable application, libmdr, and fmt archives are downloaded and verified by `makepkg`; the compilation stage is fully disconnected from the network.
+
+Review the repository before enabling it. QML plugins run unsandboxed inside Omarchy's long-lived shell. The separate native service runs without root, setuid, or a broad D-Bus policy.
+
+Confirm that both halves are healthy:
+
+```sh
+systemctl --user status sony-headphones.service
+sony-headphonesctl status
+omarchy plugin validate "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
+```
+
+The plugin ID is `io.github.vyomjain6904.sony-headphones`.
+
+### Source installation
 
 Install the required Arch build packages, clone the plugin, build its pinned native dependencies, and enable it:
 
@@ -141,32 +164,17 @@ systemctl --user enable --now sony-headphones.service
 omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
 ```
 
-Review the repository before enabling it. QML plugins run unsandboxed inside Omarchy's long-lived shell. The separate native service runs without root, setuid, or a broad D-Bus policy.
-
-Confirm that both halves are healthy:
-
-```sh
-systemctl --user status sony-headphones.service
-sony-headphonesctl status
-omarchy plugin validate "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
-```
-
-The plugin ID is `io.github.vyomjain6904.sony-headphones`. `scripts/install.sh` safely detects a Git-managed plugin checkout and does not copy files over it.
-
-### AUR installation after the listing is published
-
-The recommended package flow will be:
-
-```sh
-omarchy pkg aur add sony-headphones-omarchy
-systemctl --user enable --now sony-headphones.service
-omarchy plugin add https://github.com/VyomJain6904/sony-headphones-omarchy.git
-omarchy plugin enable io.github.vyomjain6904.sony-headphones --section right
-```
-
-The AUR contains a source build description, not a project-supplied binary. Its immutable application, libmdr, and fmt archives are downloaded and verified by `makepkg`; the compilation stage is fully disconnected from the network.
+`scripts/install.sh` safely detects a Git-managed plugin checkout and does not copy files over it.
 
 ## Update
+
+For an AUR installation, update the native package with the normal Omarchy/AUR package workflow, restart the user service, and update the plugin independently:
+
+```sh
+omarchy update
+systemctl --user restart sony-headphones.service
+omarchy plugin update io.github.vyomjain6904.sony-headphones
+```
 
 For a source installation, update the QML checkout and rebuild the native companion:
 
@@ -176,14 +184,6 @@ cd "$HOME/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones"
 ./scripts/build.sh
 ./scripts/install.sh
 systemctl --user restart sony-headphones.service
-```
-
-After the AUR listing is live, update the native package with the normal Omarchy/AUR package workflow, restart the user service, and update the plugin independently:
-
-```sh
-omarchy update
-systemctl --user restart sony-headphones.service
-omarchy plugin update io.github.vyomjain6904.sony-headphones
 ```
 
 ## Uninstall
@@ -197,7 +197,7 @@ cd "$HOME"
 omarchy plugin remove io.github.vyomjain6904.sony-headphones
 ```
 
-For a future AUR installation, remove the two independently owned parts:
+For an AUR installation, remove the two independently owned parts:
 
 ```sh
 systemctl --user disable --now sony-headphones.service
