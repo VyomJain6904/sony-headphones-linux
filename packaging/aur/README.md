@@ -24,7 +24,7 @@ Use `extra-x86_64-build` from `devtools` when a clean Arch chroot is available. 
 
 ## Publish or update
 
-For the first generic package publication:
+For a package update:
 
 ```sh
 git clone ssh://aur@aur.archlinux.org/sony-headphones-linux.git aur-sony-headphones-linux
@@ -33,7 +33,7 @@ cp packaging/aur/PKGBUILD packaging/aur/.SRCINFO \
   aur-sony-headphones-linux/
 cd aur-sony-headphones-linux
 git add PKGBUILD .SRCINFO sony-headphones-linux.install LICENSE
-git commit -m "Initial import: sony-headphones-linux 0.2.2"
+git commit -m "Update to sony-headphones-linux 0.2.3"
 git push
 ```
 

@@ -193,9 +193,13 @@ Passed during implementation:
 - Preservation of daemon status state and a separately managed Omarchy plugin marker across every successful removal
 - Byte-for-byte validation and receipt adoption of the live v0.2.2 source installation before rebuilding v0.2.3
 - Receipt-verified live update to daemon/CLI version 0.2.3; the user service remained enabled and active and the receipt remained a single-link, user-owned regular file with mode `0600`
+- Signed immutable application source commit `927b69d23d18806e75fe260010447234299ed73a`
+- Application source archive SHA-256 `9cc364626f817b273420898f09cbab731752d60272bd129ebb741f4ebb2fafa7`
+- Complete `./scripts/release-check.sh` gate: repository/source policy, ShellCheck, native tests without libmdr, installer lifecycle, mock end to end, ASan/UBSan, the pinned libmdr/fmt backend, QML lint, and Omarchy validation
+- Clean AUR `makepkg --verifysource` and `makepkg --cleanbuild --clean`; all three immutable archives passed SHA-256 verification and all four packaged native tests passed
+- Temporary installation of the resulting `sony-headphones-linux 0.2.3-1` package verified both `/usr/bin` programs at version 0.2.3 and confirmed that the existing receipt-managed user unit retained precedence; package removal preserved that source installation and private state
 
 Pending release procedure:
 
-- Complete repository, native, mock, sanitizer, pinned backend, QML, Omarchy, and AUR gates
-- Signed source/finalization commits, signed `v0.2.3` tag, source-only prerelease, and AUR 0.2.3 update
+- Signed finalization commit, signed `v0.2.3` tag, source-only prerelease, and AUR 0.2.3 update
 - Marketplace issue 712 response and maintainer refresh of the Listing snapshot to the fixed commit

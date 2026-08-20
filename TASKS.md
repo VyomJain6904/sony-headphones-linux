@@ -76,7 +76,8 @@
 - [ ] Receive AUR Package Maintainer acceptance of the old-package merge request.
 - [x] Resolve Marketplace issue 712 review findings with the verified v0.2.2 tree and post the audit evidence.
 - [x] Receive initial listing approval and publication for Marketplace issue 712.
-- [ ] Resolve the post-listing source-installer ownership finding with v0.2.3 and refresh the listing snapshot.
+- [x] Resolve the post-listing source-installer ownership finding in the v0.2.3 source tree.
+- [ ] Refresh the Marketplace listing snapshot to the fixed v0.2.3 commit and request exact-commit verification.
 - [x] Create dark/light repository screenshots from the live Omarchy shell.
 - [x] Test Git add/update/remove from an isolated clean Omarchy profile.
 - [x] Publish signed/tagged 0.2.0 hardware-alpha source release.
