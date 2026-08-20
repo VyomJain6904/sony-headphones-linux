@@ -5,6 +5,7 @@ pkgbase = sony-headphones-linux
 	url = https://github.com/VyomJain6904/sony-headphones-linux
 	install = sony-headphones-linux.install
 	arch = x86_64
+	arch = aarch64
 	license = MIT
 	makedepends = cmake
 	makedepends = git
