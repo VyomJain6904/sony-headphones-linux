@@ -199,7 +199,13 @@ Passed during implementation:
 - Clean AUR `makepkg --verifysource` and `makepkg --cleanbuild --clean`; all three immutable archives passed SHA-256 verification and all four packaged native tests passed
 - Temporary installation of the resulting `sony-headphones-linux 0.2.3-1` package verified both `/usr/bin` programs at version 0.2.3 and confirmed that the existing receipt-managed user unit retained precedence; package removal preserved that source installation and private state
 
-Pending release procedure:
+Publication completed:
 
-- Signed finalization commit, signed `v0.2.3` tag, source-only prerelease, and AUR 0.2.3 update
-- Marketplace issue 712 response and maintainer refresh of the Listing snapshot to the fixed commit
+- Signed finalization commit and signed `v0.2.3` tag at `94733d6c1919eb4d15a88b21083c79ca63d23fc3`
+- Successful GitHub Actions runs for [main](https://github.com/VyomJain6904/sony-headphones-linux/actions/runs/32412601527) and the [v0.2.3 tag](https://github.com/VyomJain6904/sony-headphones-linux/actions/runs/32412601363), including the pinned Bluetooth backend on the tag
+- Source-only [v0.2.3 hardware-alpha prerelease](https://github.com/VyomJain6904/sony-headphones-linux/releases/tag/v0.2.3) with no uploaded binary assets
+- Signed AUR update commit `35b4e1a097bd96015d7c93d55e9e47b3eb6a99dd`; the public `sony-headphones-linux` package metadata exposes version `0.2.3-1`, the immutable source commit, and its verified SHA-256 checksum
+
+Still pending external Marketplace action:
+
+- Issue 712 maintainer review, removal of the post-listing `needs-fixes` label, and refresh of the listing snapshot to the fixed commit

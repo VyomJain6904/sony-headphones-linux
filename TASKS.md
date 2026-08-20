@@ -83,5 +83,5 @@
 - [x] Publish signed/tagged 0.2.0 hardware-alpha source release.
 - [x] Publish signed/tagged 0.2.1 hardware-alpha source prerelease with no binary assets.
 - [x] Publish signed/tagged 0.2.2 hardware-alpha source prerelease with no binary assets.
-- [ ] Publish signed/tagged 0.2.3 ownership-safety source prerelease with no binary assets.
+- [x] Publish signed/tagged 0.2.3 ownership-safety source prerelease with no binary assets.
 - [ ] Publish signed/tagged 1.0 source release after cross-device acceptance criteria pass.
