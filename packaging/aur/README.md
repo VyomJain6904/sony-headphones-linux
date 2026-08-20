@@ -37,4 +37,4 @@ git commit -m "Initial import: sony-headphones-linux 0.2.2"
 git push
 ```
 
-Once the new package is visible, submit an AUR merge request from `sony-headphones-omarchy` into `sony-headphones-linux`. Do not push the renamed package metadata to the old package base.
+The merge request from `sony-headphones-omarchy` into `sony-headphones-linux` has been submitted. Until an AUR Package Maintainer accepts it, keep `provides`, `conflicts`, and `replaces` metadata and publish updates only to `sony-headphones-linux`. Do not push renamed package metadata to the old package base.

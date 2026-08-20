@@ -1,6 +1,6 @@
 # Product and Technical Specification
 
-Status: hardware alpha for `0.2.2`
+Status: hardware alpha for `0.2.3`
 Last updated: 2026-08-20
 
 ## 1. Product goal
@@ -100,6 +100,9 @@ Development runtime:
 - The stable Arch package owns only native companion files under `/usr`: the daemon, CLI, systemd user unit, documentation, and license notices.
 - Package installation and removal scripts never write to a specific user's home, edit Omarchy configuration, or enable a user service on behalf of an account.
 - Source installation remains available under `~/.local/bin` and `~/.config/systemd/user`; `scripts/install.sh` and `scripts/uninstall.sh` manage only those native files and never alter a Git-managed plugin checkout.
+- A versioned private receipt binds source-installed paths and content hashes to the canonical checkout. Install and removal preflight every destination and fail before file or service changes when a path is unrelated, modified, symbolic-linked, hard-linked, or owned by another checkout.
+- Receipt-free legacy paths may be adopted only when every existing artifact is byte-identical to the current build input. There is no force-overwrite or force-remove mode.
+- Source uninstall disables the user service only after the complete ownership preflight succeeds, removes only unchanged receipt-owned artifacts, removes the receipt itself, and preserves daemon state plus every separately managed desktop plugin.
 - A package-managed native companion and Git-managed QML plugin can be installed, updated, and removed independently without leaving conflicting owned files.
 
 ## 5. Public runtime contracts

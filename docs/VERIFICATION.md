@@ -172,5 +172,30 @@ Passed after tagging and publication:
 
 Still pending external review or authenticated web action:
 
-- Submit the AUR merge request from `sony-headphones-omarchy` into `sony-headphones-linux`; both package bases remain live until that request is accepted
-- Marketplace maintainer re-review and final listing approval for issue 712
+- AUR Package Maintainer acceptance of the submitted merge request from `sony-headphones-omarchy` into `sony-headphones-linux`; both package bases remain live until acceptance
+- Remediation of the post-listing source-installer ownership finding and a Marketplace snapshot refresh for issue 712
+
+## 2026-08-21 — v0.2.3 source-installer ownership repair
+
+Finding addressed:
+
+- Marketplace issue 712 identified that the receipt-free v0.2.2 source installer overwrote fixed user paths and the uninstaller disabled/removed them without proving ownership.
+
+Passed during implementation:
+
+- Bash syntax and ShellCheck for the shared lifecycle helper, installer, uninstaller, and expanded test suite
+- Fresh source install, idempotent reinstall, exact legacy adoption, and clean receipt-backed removal
+- Fail-closed rejection of unrelated regular files, partial conflicts, symbolic links at every managed destination, a symbolic-linked managed directory, and a symbolic-linked receipt
+- Fail-closed update and removal after an owned service file is modified, with no disable or reload action after the failed preflight
+- Fail-closed update and removal for a foreign-checkout receipt
+- Safe removal when one recorded artifact is already absent
+- Refusal to disable or remove an existing native path when no ownership receipt exists
+- Preservation of daemon status state and a separately managed Omarchy plugin marker across every successful removal
+- Byte-for-byte validation and receipt adoption of the live v0.2.2 source installation before rebuilding v0.2.3
+- Receipt-verified live update to daemon/CLI version 0.2.3; the user service remained enabled and active and the receipt remained a single-link, user-owned regular file with mode `0600`
+
+Pending release procedure:
+
+- Complete repository, native, mock, sanitizer, pinned backend, QML, Omarchy, and AUR gates
+- Signed source/finalization commits, signed `v0.2.3` tag, source-only prerelease, and AUR 0.2.3 update
+- Marketplace issue 712 response and maintainer refresh of the Listing snapshot to the fixed commit

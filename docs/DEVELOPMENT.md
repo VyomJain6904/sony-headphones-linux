@@ -88,6 +88,8 @@ The wrapper selects Qt 6 and reproduces Quickshell's special `qs.Ui`/`qs.Commons
 
 Run `scripts/uninstall.sh` before `omarchy plugin remove` when removing both components. The native uninstaller preserves the Git-managed plugin checkout and private state, so Omarchy can remove its own checkout cleanly.
 
+Source lifecycle operations are bound to a private receipt under the Sony Headphones XDG state directory. The receipt records the canonical checkout, destination identities, and installed content hashes. Install/update preflights all paths before staging replacements; uninstall validates the complete receipt before stopping the service. Never add a force flag or adopt a non-identical legacy artifact.
+
 ## AUR package workflow
 
 The stable `sony-headphones-linux` package under `packaging/aur/` is deliberately separate from the source installer. Pacman owns the native executables and systemd user unit under `/usr`; Omarchy owns the QML checkout under the current user's configuration directory.

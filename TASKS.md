@@ -65,18 +65,22 @@
 
 - [x] Populate the hardware compatibility matrix with the WH-1000XM5 hardware-alpha evidence.
 - [x] Add source-checkout-aware install and uninstall scripts.
+- [x] Bind source install/update/removal to a private checkout-and-hash ownership receipt with fail-closed preflight.
 - [x] Complete the source-release dependency/license/security review; keep binary licensing as separate artifact work.
 - [x] Add and validate stable AUR packaging for the native companion with immutable, checksummed sources and an offline build phase.
 - [x] Submit `sony-headphones-omarchy` to the AUR after final maintainer review.
 - [x] Broaden project framing from Omarchy-only to general-purpose Linux service with integration documentation.
 - [x] Submit the v0.2.1 repository to the Omarchy Marketplace as issue 712.
 - [x] Publish the renamed `sony-headphones-linux` AUR package with explicit migration metadata.
-- [ ] Submit the authenticated AUR merge request from `sony-headphones-omarchy` to `sony-headphones-linux`.
+- [x] Submit the authenticated AUR merge request from `sony-headphones-omarchy` to `sony-headphones-linux`.
+- [ ] Receive AUR Package Maintainer acceptance of the old-package merge request.
 - [x] Resolve Marketplace issue 712 review findings with the verified v0.2.2 tree and post the audit evidence.
-- [ ] Receive final maintainer approval for Marketplace issue 712.
+- [x] Receive initial listing approval and publication for Marketplace issue 712.
+- [ ] Resolve the post-listing source-installer ownership finding with v0.2.3 and refresh the listing snapshot.
 - [x] Create dark/light repository screenshots from the live Omarchy shell.
 - [x] Test Git add/update/remove from an isolated clean Omarchy profile.
 - [x] Publish signed/tagged 0.2.0 hardware-alpha source release.
 - [x] Publish signed/tagged 0.2.1 hardware-alpha source prerelease with no binary assets.
 - [x] Publish signed/tagged 0.2.2 hardware-alpha source prerelease with no binary assets.
+- [ ] Publish signed/tagged 0.2.3 ownership-safety source prerelease with no binary assets.
 - [ ] Publish signed/tagged 1.0 source release after cross-device acceptance criteria pass.

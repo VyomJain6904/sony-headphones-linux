@@ -4,6 +4,23 @@ All notable changes will be documented here. The format follows Keep a Changelog
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-08-21
+
+### Added
+
+- Add a private schema-v1 ownership receipt that binds source-installed destination paths and content hashes to the canonical checkout.
+- Expand the isolated installer lifecycle suite across legacy adoption, idempotent reinstall, partial conflicts, destination and directory symlinks, modified artifacts, foreign receipts, missing owned files, and unowned uninstall.
+
+### Changed
+
+- Make source install stage verified files and receipt data before replacing any destination, with rollback backups for interrupted updates.
+- Make source uninstall validate the full receipt and every remaining artifact before stopping the user service or removing any file.
+
+### Fixed
+
+- Refuse to overwrite or remove unrelated, linked, hard-linked, foreign-checkout, or locally modified native paths.
+- Preserve the Omarchy checkout and private runtime state while removing only unchanged source-owned artifacts and their receipt.
+
 ## [0.2.2] - 2026-08-20
 
 ### Added
@@ -80,7 +97,8 @@ All notable changes will be documented here. The format follows Keep a Changelog
 - Bluetooth MAC addresses are excluded from the QML-facing state document.
 - Firmware flashing, factory reset, cloud/account functions, tracking, and 360 Reality Audio are explicitly out of scope.
 
-[Unreleased]: https://github.com/VyomJain6904/sony-headphones-linux/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/VyomJain6904/sony-headphones-linux/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/VyomJain6904/sony-headphones-linux/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/VyomJain6904/sony-headphones-linux/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/VyomJain6904/sony-headphones-linux/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/VyomJain6904/sony-headphones-linux/releases/tag/v0.2.0

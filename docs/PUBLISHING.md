@@ -18,7 +18,7 @@ The permanent manifest identity is:
   "schemaVersion": 1,
   "id": "io.github.vyomjain6904.sony-headphones",
   "name": "Sony Headphones",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "Vyom Jain",
   "description": "Capability-driven controls and battery status for Sony Sound Connect headphones.",
   "kinds": ["bar-widget"],
@@ -51,6 +51,8 @@ Document both source lifecycle commands exactly:
 ./scripts/uninstall.sh
 ```
 
+Both commands must remain receipt-bound and fail closed. Installation preflights every native destination before writing; removal validates the same checkout and recorded hashes before stopping the service. Neither command may add a force mode, follow destination symlinks, adopt non-identical legacy files, or touch the separately managed QML checkout.
+
 Omarchy plugin add/remove remains separate. Package management, remote source builds, and user-service management are genuine capabilities and should remain visible to the automated security baseline.
 
 ## AUR package
@@ -77,17 +79,17 @@ The AUR Git repository must include `PKGBUILD`, `.SRCINFO`, `sony-headphones-lin
 
 The final package declares and checksums:
 
-- an exact signed upstream source commit for version 0.2.2;
+- an exact signed upstream source commit for version 0.2.3;
 - libmdr commit `db0ae2574d8f8e1407e8ea28a7ee87db9dde1c24`;
 - fmt commit `407c905e45ad75fc29bf0f9bb7c5c2fd3475976f`.
 
-The application archive uses the source commit immediately before the packaging-only finalization commit. This avoids embedding a checksum that recursively changes its own source archive. The signed `v0.2.2` tag may differ from that source commit only in packaging metadata and release-validation tooling or evidence.
+The application archive uses the source commit immediately before the packaging-only finalization commit. This avoids embedding a checksum that recursively changes its own source archive. The signed `v0.2.3` tag may differ from that source commit only in packaging metadata and release-validation tooling or evidence.
 
 All archives require SHA-256 hashes. `prepare()` applies the two reviewed patches and removes upstream's forced linker stripping. `build()` passes `FETCHCONTENT_FULLY_DISCONNECTED=ON` and `FETCHCONTENT_SOURCE_DIR_FMT` so CMake cannot download undeclared dependencies.
 
 ### Rename migration
 
-Publish `sony-headphones-linux` as a new AUR package base. It must provide, conflict with, and replace `sony-headphones-omarchy`. Do not push renamed `.SRCINFO` metadata into the old AUR Git repository. Once the new page is live, submit an AUR merge request from `sony-headphones-omarchy` into `sony-headphones-linux`.
+`sony-headphones-linux` is the authoritative AUR package base and must continue to provide, conflict with, and replace `sony-headphones-omarchy` until the submitted merge request is accepted. Publish updates only to the generic package; never push renamed metadata into the old package base.
 
 ## Release procedure
 
@@ -96,9 +98,19 @@ Publish `sony-headphones-linux` as a new AUR package base. It must provide, conf
 3. Commit the release source with a signed commit and expose that exact commit temporarily so its GitHub archive can be checksummed.
 4. Set the AUR `_upstream_commit` and application SHA-256 to that source commit, regenerate `.SRCINFO`, and verify that the finalization diff is limited to packaging and verification evidence.
 5. Run the complete repository, native, QML, and AUR gates.
-6. Create and verify the signed `v0.2.2` tag on the finalized tree, push `main` and the tag, then wait for both CI jobs.
+6. Create and verify the signed `v0.2.3` tag on the finalized tree, push `main` and the tag, then wait for both CI jobs.
 7. Publish the source-only GitHub hardware-alpha prerelease. Do not attach native binaries without a separate reproducibility and license review.
-8. Publish the new AUR package, submit the old-package merge request, and update Marketplace issue 712 with the exact fixed commit and check results.
+8. Update the generic AUR package and comment on Marketplace issue 712 with the exact ownership fix, commit, and check results. Do not create a duplicate plugin submission.
+
+## Post-listing verification
+
+After a maintainer removes `needs-fixes` and updates the public Listing snapshot to the fixed commit, use **Request plugin verification**, not **Submit a plugin**. Enter:
+
+- Plugin ID: `io.github.vyomjain6904.sony-headphones`
+- Repository: `https://github.com/VyomJain6904/sony-headphones-linux`
+- Listed commit: the full 40-character SHA from the updated Listing snapshot link
+
+Never request verification against an older snapshot that does not contain the current remediation. Installer, package-manager, remote-build, and user-service capabilities are expected to require explicit maintainer review.
 
 ## Release gate
 

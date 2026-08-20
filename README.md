@@ -59,7 +59,7 @@ cd sony-headphones-linux
 systemctl --user enable --now sony-headphones.service
 ```
 
-`install.sh` writes only to `~/.local/bin` and `~/.config/systemd/user`. It does not install or enable the Omarchy widget.
+`install.sh` writes only to `~/.local/bin` and `~/.config/systemd/user`. It does not install or enable the Omarchy widget. Before writing, it rejects unrelated, modified, linked, or foreign-checkout destinations and records the installed hashes in a private checkout-bound receipt.
 
 For a deterministic build without Bluetooth/libmdr:
 
@@ -100,7 +100,7 @@ systemctl --user restart sony-headphones.service
 omarchy plugin update io.github.vyomjain6904.sony-headphones
 ```
 
-For a source installation, pull the repository, rebuild, reinstall, and restart the service:
+For a receipt-backed source installation, pull the repository, rebuild, reinstall, and restart the service:
 
 ```sh
 git pull --ff-only
@@ -108,6 +108,8 @@ git pull --ff-only
 ./scripts/install.sh
 systemctl --user restart sony-headphones.service
 ```
+
+Existing v0.2.2 source installs predate ownership receipts. Immediately after the first `git pull`, run `./scripts/install.sh` once **before rebuilding**; it adopts the old installation only when all three files are byte-identical to the existing build. Then use the normal build/install sequence above. A conflict stops without changing files or the service; inspect, back up, and resolve that path manually rather than forcing installation.
 
 ## Uninstall
 
@@ -126,7 +128,7 @@ For a source installation, run the tracked uninstaller from its checkout:
 omarchy plugin remove io.github.vyomjain6904.sony-headphones
 ```
 
-The native uninstaller and package removal preserve private state. Delete it only when the last status and error information is no longer wanted:
+The source uninstaller validates the receipt and every recorded hash before disabling the service. It removes only unchanged artifacts installed by the same checkout; a missing receipt, symlink, unrelated file, or modified owned file stops removal. The native uninstaller and package removal preserve private state. Delete it only when the last status and error information is no longer wanted:
 
 ```sh
 rm -r -- "$HOME/.local/state/sony-headphones"
