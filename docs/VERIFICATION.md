@@ -158,8 +158,19 @@ Passed before tagging:
 - Temporary package installation, zero missing owned files, isolated packaged mock daemon, volume `20`, ambient level `12`, CLI/daemon version `0.2.2`, and static unit validation
 - Clean temporary package removal preserved the existing user plugin, source-installed native companion, and private state
 
-Still pending at this point in the release procedure:
+Passed after tagging and publication:
 
-- Signed `v0.2.2` tag and GitHub prerelease
-- `sony-headphones-linux` AUR publication and old-package merge request
-- Marketplace issue 712 reviewer follow-up against the final public commit
+- Signed final commit `2115b1ae0e1aada891040b5c008c55457dc1fbde` and annotated tag `v0.2.2` verified against the dedicated Ed25519 release key
+- GitHub Actions main run `32391079569` and tag run `32391084159`, including policy/native-core and pinned Arch Bluetooth-backend jobs
+- Non-draft `v0.2.2` GitHub hardware-alpha prerelease published source-only with no uploaded binary assets
+- AUR repository `sony-headphones-linux` initial signed import at commit `1cda9b91e1ae133d7acd3c5ef00b63a78d0179de`
+- Official AUR RPC reports `sony-headphones-linux` version `0.2.2-1`, maintainer `VyomJain`, canonical upstream URL, and the intended provide/conflict/replace relationship to `sony-headphones-omarchy`
+- Marketplace issue 712 title, repository URL, maintainer notes, ownership boundaries, install/removal paths, dependency verification description, and screenshots updated for the generic v0.2.2 tree
+- Marketplace reviewer follow-up posted with the exact fixed commit, signed prerelease, AUR package, CI runs, and local release-gate evidence
+- Marketplace automation revalidated commit `2115b1ae0e1aada891040b5c008c55457dc1fbde`, detected the root preview, removed `needs-fixes`, and retained only the expected manual security review gate
+- The temporary package, AUR publishing checkout, source archive, signature-verification file, `namcap`, and its now-unused dependencies were removed; the existing source-installed service, plugin, and private state remain preserved
+
+Still pending external review or authenticated web action:
+
+- Submit the AUR merge request from `sony-headphones-omarchy` into `sony-headphones-linux`; both package bases remain live until that request is accepted
+- Marketplace maintainer re-review and final listing approval for issue 712

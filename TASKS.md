@@ -70,11 +70,13 @@
 - [x] Submit `sony-headphones-omarchy` to the AUR after final maintainer review.
 - [x] Broaden project framing from Omarchy-only to general-purpose Linux service with integration documentation.
 - [x] Submit the v0.2.1 repository to the Omarchy Marketplace as issue 712.
-- [ ] Publish the renamed `sony-headphones-linux` AUR package and request migration of the old package base.
-- [ ] Resolve Marketplace issue 712 review findings with the verified v0.2.2 tree.
+- [x] Publish the renamed `sony-headphones-linux` AUR package with explicit migration metadata.
+- [ ] Submit the authenticated AUR merge request from `sony-headphones-omarchy` to `sony-headphones-linux`.
+- [x] Resolve Marketplace issue 712 review findings with the verified v0.2.2 tree and post the audit evidence.
+- [ ] Receive final maintainer approval for Marketplace issue 712.
 - [x] Create dark/light repository screenshots from the live Omarchy shell.
 - [x] Test Git add/update/remove from an isolated clean Omarchy profile.
 - [x] Publish signed/tagged 0.2.0 hardware-alpha source release.
 - [x] Publish signed/tagged 0.2.1 hardware-alpha source prerelease with no binary assets.
-- [ ] Publish signed/tagged 0.2.2 hardware-alpha source prerelease with no binary assets.
+- [x] Publish signed/tagged 0.2.2 hardware-alpha source prerelease with no binary assets.
 - [ ] Publish signed/tagged 1.0 source release after cross-device acceptance criteria pass.
