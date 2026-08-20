@@ -130,3 +130,36 @@ Passed after AUR publication:
 - AUR repository `sony-headphones-omarchy` initial import pushed with PKGBUILD, .SRCINFO, and sony-headphones-omarchy.install for version 0.2.1
 - AUR package page live at https://aur.archlinux.org/packages/sony-headphones-omarchy showing version 0.2.1-1, maintainer VyomJain, correct dependencies, and upstream URL
 - Repository documentation updated to reflect the live AUR listing
+
+## 2026-08-20 — v0.2.2 publication repair and Linux rename
+
+Environment:
+
+- Omarchy Quattro on Arch Linux x86_64
+- GCC 16.2.1, CMake 4.4.2, makepkg 7.1.0, D-Bus 1.16.2, and BlueZ 5.87
+- The same pinned libmdr and fmt revisions recorded above
+
+Passed before tagging:
+
+- Canonical GitHub repository renamed to `VyomJain6904/sony-headphones-linux` while preserving the manifest ID and native runtime names
+- Signed immutable application source commit `08e680333350610a92022dc551b8c2d4d0821054`
+- Application source archive SHA-256 `79cf440efc796e83eb7d4035ef0c9879add2fce294473825fe5d1ae2f2dbe46b`
+- Root README reduced to 165 lines with tracked, executable install and removal commands
+- Root `preview.png` is a valid 455×656 PNG sourced from the live dark-theme screenshot
+- Bash syntax and ShellCheck for repository scripts and installer tests
+- `./scripts/release-check.sh`, including policy/model checks, no-libmdr build, all four native CTests, isolated installer ownership/state preservation, mock E2E, ASan/UBSan, exact libmdr/fmt build, QML lint, and Omarchy plugin validation
+- fmt revision verification before its reviewed patch or any CMake configuration; libmdr configuration used `FETCHCONTENT_FULLY_DISCONNECTED=ON` and `FETCHCONTENT_SOURCE_DIR_FMT`
+- Final AUR `.SRCINFO` regeneration and exact comparison
+- `makepkg --verifysource` for the immutable application, libmdr, and fmt archives
+- Clean `makepkg` build with both reviewed patches, disconnected CMake configuration, and all four native CTests
+- Package inspection: 19 main-package files, generic `/usr/share` ownership paths, `/usr/bin` executables, `/usr/lib/systemd/user/sony-headphones.service`, and all three MIT notices
+- Packaged unit verification with `/usr/bin/sony-headphonesd` and the canonical Linux repository URL
+- `namcap` inspection; only the intentional BlueZ service dependency and expected cross-package debug build-ID/empty-directory findings remain
+- Temporary package installation, zero missing owned files, isolated packaged mock daemon, volume `20`, ambient level `12`, CLI/daemon version `0.2.2`, and static unit validation
+- Clean temporary package removal preserved the existing user plugin, source-installed native companion, and private state
+
+Still pending at this point in the release procedure:
+
+- Signed `v0.2.2` tag and GitHub prerelease
+- `sony-headphones-linux` AUR publication and old-package merge request
+- Marketplace issue 712 reviewer follow-up against the final public commit

@@ -81,7 +81,7 @@ The final package declares and checksums:
 - libmdr commit `db0ae2574d8f8e1407e8ea28a7ee87db9dde1c24`;
 - fmt commit `407c905e45ad75fc29bf0f9bb7c5c2fd3475976f`.
 
-The application archive uses the source commit immediately before the packaging-only finalization commit. This avoids embedding a checksum that recursively changes its own source archive. The signed `v0.2.2` tag may differ from that source commit only in `packaging/aur/` metadata.
+The application archive uses the source commit immediately before the packaging-only finalization commit. This avoids embedding a checksum that recursively changes its own source archive. The signed `v0.2.2` tag may differ from that source commit only in packaging metadata and release-validation tooling or evidence.
 
 All archives require SHA-256 hashes. `prepare()` applies the two reviewed patches and removes upstream's forced linker stripping. `build()` passes `FETCHCONTENT_FULLY_DISCONNECTED=ON` and `FETCHCONTENT_SOURCE_DIR_FMT` so CMake cannot download undeclared dependencies.
 

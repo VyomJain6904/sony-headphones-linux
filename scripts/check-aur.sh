@@ -20,13 +20,30 @@ fi
 source "$script_dir/libmdr-version.sh"
 pkgbuild_libmdr="$(sed -nE "s/^_libmdr_commit='([^']+)'$/\\1/p" "$pkgbuild")"
 pkgbuild_fmt="$(sed -nE "s/^_fmt_commit='([^']+)'$/\\1/p" "$pkgbuild")"
+pkgbuild_upstream="$(sed -nE "s/^_upstream_commit='([^']+)'$/\\1/p" "$pkgbuild")"
 if [ "$pkgbuild_libmdr" != "$LIBMDR_COMMIT" ] || [ "$pkgbuild_fmt" != "$FMT_COMMIT" ]; then
   printf 'AUR dependency pins do not match scripts/libmdr-version.sh\n' >&2
+  exit 1
+fi
+if ! [[ "$pkgbuild_upstream" =~ ^[0-9a-f]{40}$ ]]; then
+  printf 'AUR application source must be pinned to a full Git commit ID.\n' >&2
+  exit 1
+fi
+# The single-quoted pattern intentionally matches literal PKGBUILD variables.
+# shellcheck disable=SC2016
+if ! grep -Fq '${url}/archive/${_upstream_commit}.tar.gz' "$pkgbuild"; then
+  printf 'AUR application source does not use the immutable upstream commit.\n' >&2
   exit 1
 fi
 
 if grep -Eq "^[[:space:]]*'SKIP'[[:space:]]*$" "$pkgbuild"; then
   printf 'Every stable AUR source must have a final integrity hash.\n' >&2
+  exit 1
+fi
+
+if [ ! -f "$aur_dir/LICENSE" ] \
+  || ! grep -Fq 'Copyright Arch Linux Contributors' "$aur_dir/LICENSE"; then
+  printf 'AUR package metadata requires the tracked 0BSD source license.\n' >&2
   exit 1
 fi
 
