@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(sony-headphones-omarchy VERSION 0.2.1 LANGUAGES CXX)
+project(sony-headphones-linux VERSION 0.2.2 LANGUAGES CXX)
 
 option(SONY_WITH_LIBMDR "Build the BlueZ/libmdr hardware backend" OFF)
 set(SONY_LIBMDR_SOURCE_DIR "" CACHE PATH "Path to the pinned SonyHeadphonesClient source")

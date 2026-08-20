@@ -1,6 +1,6 @@
 [Unit]
 Description=Sony Headphones control service
-Documentation=https://github.com/VyomJain6904/sony-headphones-omarchy
+Documentation=https://github.com/VyomJain6904/sony-headphones-linux
 After=bluetooth.target dbus.service
 Wants=bluetooth.target
 

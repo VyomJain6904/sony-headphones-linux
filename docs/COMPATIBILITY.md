@@ -32,7 +32,7 @@ Reversible write checks passed for ANC/ambient mode, ambient level `20 â†’ 12 â†
 
 The current libmdr C ABI reports equalizer capability and the active preset but not the device's writable preset list. Schema v1 therefore publishes an empty `equalizer.available_presets`, the panel hides preset buttons, and direct preset commands are rejected. This is a deliberate capability gate, not a claim that the XM5 lacks EQ.
 
-The v0.2.1 packaging and documentation work does not add device evidence or broaden compatibility. Its sound-control icons, compact layout, and normalized volume fix use the same WH-1000XM5 firmware 2.5.1 verification recorded above.
+The v0.2.2 publication, naming, packaging, and documentation work does not add device evidence or broaden compatibility. It uses the same WH-1000XM5 firmware 2.5.1 verification recorded above.
 
 Panel close released RFCOMM after the 15-second idle deadline, and panel reopen synchronized again. Daemon restart and Omarchy shell restart also recovered. Sleep/resume, BlueZ restart, multipoint actions, shutdown, pairing, and long-duration soak behavior were not tested.
 

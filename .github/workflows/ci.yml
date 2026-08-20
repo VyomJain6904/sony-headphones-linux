@@ -24,9 +24,11 @@ jobs:
       - name: Check repository policy and scripts
         run: |
           ./scripts/check.sh
-          shellcheck -x scripts/*.sh
+          shellcheck -x scripts/*.sh tests/*.sh
       - name: Build and test without libmdr
         run: ./scripts/build.sh --without-libmdr
+      - name: Test native source installation lifecycle
+        run: ./tests/installers.test.sh
 
   full-backend:
     name: Pinned Bluetooth backend
@@ -35,7 +37,7 @@ jobs:
     container: archlinux:latest
     steps:
       - name: Install build dependencies
-        run: eval "pac""man -Syu --needed --noconfirm base-devel bluez bluez-libs cmake dbus git jq nodejs pkgconf"
+        run: pacman -Syu --needed --noconfirm base-devel bluez bluez-libs cmake dbus git jq nodejs pkgconf
       - name: Check out source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build and test pinned hardware backend

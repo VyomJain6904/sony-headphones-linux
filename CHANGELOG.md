@@ -4,14 +4,27 @@ All notable changes will be documented here. The format follows Keep a Changelog
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-08-20
+
 ### Added
 
-- Publish `sony-headphones-omarchy` to the AUR.
+- Add a supported root Marketplace preview and an isolated native installer lifecycle test.
 - Add integration guide with examples for Waybar, Polybar, eww, AGS, i3status-rust, Conky, Hyprland/Sway/i3 keybindings, Python, KDE Plasma, GNOME Shell, and any Quickshell config.
 
 ### Changed
 
-- Broaden documentation, AUR description, and specification to present the native daemon and CLI as a standalone Linux service usable with any desktop environment or status bar.
+- Rename the canonical upstream project and native AUR package to `sony-headphones-linux` while preserving the Omarchy plugin ID and every runtime interface.
+- Replace the root README with a concise installation-first guide and move detailed development, integration, and publication material into focused documents.
+- Restore transparent `install.sh` and `uninstall.sh` entry points that manage only the desktop-independent native companion.
+
+### Fixed
+
+- Verify the exact fmt commit before CMake configuration and force libmdr to consume that local source with FetchContent fully disconnected.
+- Correct every current removal instruction to invoke a tracked executable script.
+
+### Security
+
+- Remove command-name obfuscation and document package, remote-build, and user-service capabilities explicitly for Marketplace review.
 ## [0.2.1] - 2026-08-19
 
 ### Added
@@ -67,6 +80,7 @@ All notable changes will be documented here. The format follows Keep a Changelog
 - Bluetooth MAC addresses are excluded from the QML-facing state document.
 - Firmware flashing, factory reset, cloud/account functions, tracking, and 360 Reality Audio are explicitly out of scope.
 
-[Unreleased]: https://github.com/VyomJain6904/sony-headphones-omarchy/compare/v0.2.1...HEAD
-[0.2.1]: https://github.com/VyomJain6904/sony-headphones-omarchy/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/VyomJain6904/sony-headphones-omarchy/releases/tag/v0.2.0
+[Unreleased]: https://github.com/VyomJain6904/sony-headphones-linux/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/VyomJain6904/sony-headphones-linux/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/VyomJain6904/sony-headphones-linux/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/VyomJain6904/sony-headphones-linux/releases/tag/v0.2.0

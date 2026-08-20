@@ -59,6 +59,11 @@ if [ "$with_libmdr" -eq 1 ]; then
   fi
   git -C "$libmdr_source" diff --check
   fmt_source="$("$script_dir/fetch-fmt.sh" | tail -n 1)"
+  actual_fmt_commit="$(git -C "$fmt_source" rev-parse HEAD)"
+  if [ "$actual_fmt_commit" != "$FMT_COMMIT" ]; then
+    printf 'fmt source is not at the reviewed commit: %s\n' "$actual_fmt_commit" >&2
+    exit 1
+  fi
   if git -C "$fmt_source" apply --reverse --check "$libmdr_source/contrib/fmt.patch" >/dev/null 2>&1; then
     : # Already applied in this working tree.
   elif git -C "$fmt_source" apply --check "$libmdr_source/contrib/fmt.patch"; then
@@ -67,6 +72,7 @@ if [ "$with_libmdr" -eq 1 ]; then
     printf 'libmdr fmt patch does not apply cleanly to %s\n' "$FMT_COMMIT" >&2
     exit 1
   fi
+  git -C "$fmt_source" diff --check
 
   libmdr_build="$project_dir/build/libmdr"
   cmake -S "$libmdr_source" -B "$libmdr_build" \

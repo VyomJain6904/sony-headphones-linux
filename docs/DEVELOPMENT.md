@@ -22,13 +22,15 @@ Real backend:
 ./scripts/build.sh
 ```
 
-The latter clones the pinned libmdr commit into `.deps/`, verifies and applies the tracked patch under `patches/`, configures it as its own top-level project, and links the resulting static libraries into this project's binaries. It is separate because the upstream project intentionally uses top-level CMake paths.
+The latter fetches exact libmdr and fmt commits into `.deps/`, verifies both revisions before configuration, applies the reviewed patches, and links the resulting static libraries into this project's binaries. CMake receives the verified fmt checkout through `FETCHCONTENT_SOURCE_DIR_FMT` with FetchContent fully disconnected, so upstream's mutable tag declaration is never downloaded or updated during configuration.
 
 Set `SONY_LIBMDR_SOURCE_DIR` to an already reviewed clone to avoid a network fetch:
 
 ```sh
 SONY_LIBMDR_SOURCE_DIR=/path/to/SonyHeadphonesClient ./scripts/build.sh
 ```
+
+`SONY_FMT_SOURCE_DIR` provides the corresponding override for an exact fmt checkout. Both override repositories must resolve to the revisions in `scripts/libmdr-version.sh`.
 
 ## Tests
 
@@ -82,13 +84,13 @@ The wrapper selects Qt 6 and reproduces Quickshell's special `qs.Ui`/`qs.Commons
 
 ## Git-managed Omarchy workflow
 
-`omarchy plugin add <git-url>` clones the repository directly to `~/.config/omarchy/plugins/<id>`. Omarchy validates and discovers QML but intentionally runs no native installer hook. Build and install the daemon explicitly from that checkout. `scripts/deploy-plugin.sh` detects this layout and does not copy files over the source checkout.
+`omarchy plugin add <git-url>` clones the repository directly to `~/.config/omarchy/plugins/<id>`. Omarchy validates and discovers QML but intentionally runs no native installer hook. Build the daemon and run `scripts/install.sh` explicitly from that checkout. The native installer does not modify the QML checkout.
 
-Run `scripts/undeploy-native.sh` before `omarchy plugin remove`. The script removes the user service and native binaries but preserves a git-managed checkout so Omarchy can remove it cleanly.
+Run `scripts/uninstall.sh` before `omarchy plugin remove` when removing both components. The native uninstaller preserves the Git-managed plugin checkout and private state, so Omarchy can remove its own checkout cleanly.
 
 ## AUR package workflow
 
-The stable package under `packaging/aur/` is deliberately separate from the source installer. Pacman owns the native executables and systemd user unit under `/usr`; Omarchy owns the QML checkout under the current user's configuration directory.
+The stable `sony-headphones-linux` package under `packaging/aur/` is deliberately separate from the source installer. Pacman owns the native executables and systemd user unit under `/usr`; Omarchy owns the QML checkout under the current user's configuration directory.
 
 The package's `source=()` contains the application release, pinned libmdr commit, and pinned fmt commit. `prepare()` applies both reviewed patches and removes upstream's forced linker stripping so makepkg owns the normal Arch strip/debug policy. `build()` configures CMake with `FETCHCONTENT_FULLY_DISCONNECTED=ON`. Do not replace this with `scripts/build.sh`, because that developer script may fetch a missing dependency before compilation.
 

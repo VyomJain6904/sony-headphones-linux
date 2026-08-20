@@ -1,7 +1,7 @@
 # Product and Technical Specification
 
-Status: hardware alpha for `0.2.1`
-Last updated: 2026-08-19
+Status: hardware alpha for `0.2.2`
+Last updated: 2026-08-20
 
 ## 1. Product goal
 
@@ -95,10 +95,11 @@ Development runtime:
 
 ### 4.4 Distribution and ownership
 
+- The canonical upstream project and native package are named `sony-headphones-linux`; the service is not tied to a desktop environment.
 - Omarchy owns the Git-managed QML checkout under `~/.config/omarchy/plugins/io.github.vyomjain6904.sony-headphones`.
 - The stable Arch package owns only native companion files under `/usr`: the daemon, CLI, systemd user unit, documentation, and license notices.
 - Package installation and removal scripts never write to a specific user's home, edit Omarchy configuration, or enable a user service on behalf of an account.
-- Source installation remains available under `~/.local/bin` and `~/.config/systemd/user`; its existing uninstaller must not remove a Git-managed plugin checkout.
+- Source installation remains available under `~/.local/bin` and `~/.config/systemd/user`; `scripts/install.sh` and `scripts/uninstall.sh` manage only those native files and never alter a Git-managed plugin checkout.
 - A package-managed native companion and Git-managed QML plugin can be installed, updated, and removed independently without leaving conflicting owned files.
 
 ## 5. Public runtime contracts

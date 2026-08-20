@@ -19,7 +19,7 @@ Example contents:
 ```json
 {
   "schema_version": 1,
-  "daemon_version": "0.2.1",
+  "daemon_version": "0.2.2",
   "revision": 9,
   "phase": "ready",
   "connected": true,

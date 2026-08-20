@@ -15,8 +15,11 @@ fi
 mkdir -p -- "$binary_dir" "$unit_dir"
 install -m 0755 "$build_dir/sony-headphonesd" "$binary_dir/sony-headphonesd"
 install -m 0755 "$build_dir/sony-headphonesctl" "$binary_dir/sony-headphonesctl"
-install -m 0644 "$project_dir/systemd/sony-headphones.service" "$unit_dir/sony-headphones.service"
-"$script_dir/deploy-plugin.sh"
+install -m 0644 "$project_dir/systemd/sony-headphones.service" \
+  "$unit_dir/sony-headphones.service"
 
-SC="system""ctl"; $SC --user daemon-reload
-printf '\nInstalled native binaries, user service, and plugin.\n'
+systemctl --user daemon-reload
+printf '%s\n' \
+  'Installed the native Sony Headphones binaries and user service.' \
+  'Enable the service with:' \
+  '  systemctl --user enable --now sony-headphones.service'
