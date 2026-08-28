@@ -8,7 +8,12 @@
 - Reviewed commit: `db0ae2574d8f8e1407e8ea28a7ee87db9dde1c24`
 - License: MIT
 - Purpose: Sony MDR v1/v2 packet handling and Linux Bluetooth transport
-- Local changes: `patches/libmdr-v2-connection-priority-validation.patch` removes generated v2 validation that incorrectly rejected the valid `SOUND_QUALITY_PRIOR` connection-priority value reported by WH-1000XM5 firmware 2.5.1. `scripts/build.sh` verifies the immutable upstream commit and applies this reviewed patch deterministically before compilation. The AUR `prepare()` step also removes upstream's forced linker stripping flag so makepkg can apply Arch's normal strip/debug policy.
+- Local changes:
+  - `patches/libmdr-v2-connection-priority-validation.patch` removes generated v2 validation that incorrectly rejected the valid `SOUND_QUALITY_PRIOR` connection-priority value reported by WH-1000XM5 firmware 2.5.1.
+  - `patches/libmdr-v1-device-info-validation.patch` removes generated v1 validation that pinned `GetDeviceInfo.inquiredType` to `SERIES_AND_COLOR_INFO`, rejecting other valid inquiry types reported by WH-1000XM4 firmware.
+  - `patches/libmdr-v1-playback-name-field-order.patch` fixes the generated `PlaybackName` struct/(de)serialization field order (`nameStatus` before `name`) to match the actual v1 wire layout observed from WH-1000XM4 hardware.
+  - `patches/libmdr-v1-playback-name-optional-second-entry.patch` treats the second `PlaybackName` entry in `RetPlayParamPlaybackControllerNameData` as optional (absent from the wire, not just empty) and stops pinning `dataType` to `TRACK_NAME`, since real WH-1000XM4 responses omit it and the struct is shared with `ALBUM_NAME`/`ARTIST_NAME` queries.
+  - `scripts/build.sh` verifies the immutable upstream commit and applies all four reviewed patches deterministically before compilation. The AUR `prepare()` step also removes upstream's forced linker stripping flag so makepkg can apply Arch's normal strip/debug policy.
 - Notice: `licenses/libmdr-LICENSE`
 
 ### fmt
@@ -20,7 +25,7 @@
 - Local changes: the one-line patch shipped by the pinned libmdr source
 - Notice: `licenses/fmt-LICENSE`
 
-The developer build verifies both Git revisions and checks the tracked libmdr patch before compilation. The AUR build instead downloads commit-addressed archives through `makepkg`, verifies SHA-256 hashes before extraction, applies both reviewed patches during `prepare()`, and configures CMake with dependency fetching fully disconnected.
+The developer build verifies both Git revisions and checks the tracked libmdr patches before compilation. The AUR build instead downloads commit-addressed archives through `makepkg`, verifies SHA-256 hashes before extraction, applies all reviewed patches during `prepare()`, and configures CMake with dependency fetching fully disconnected.
 
 ## System-owned dynamic dependencies
 

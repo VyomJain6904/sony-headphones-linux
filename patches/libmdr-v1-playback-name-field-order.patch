@@ -1,0 +1,34 @@
+--- a/libmdr/include/mdr/ProtocolV1T1.hpp
++++ b/libmdr/include/mdr/ProtocolV1T1.hpp
+@@ -3163,9 +3163,9 @@
+     // THMSGV1T1PlaybackName
+     struct PlaybackName
+     {
+-        MDRPrefixedString name; // 0x0
+         // CODEGEN Ignore OUT_OF_RANGE is expected
+-        PlaybackNameStatus nameStatus{PlaybackNameStatus::UNSETTLED};
++        PlaybackNameStatus nameStatus{PlaybackNameStatus::UNSETTLED}; // 0x0
++        MDRPrefixedString name; // 0x1
+
+         MDR_DEFINE_EXTERN_READ_WRITE(PlaybackName);
+     };
+--- a/libmdr/src/Generated/ProtocolV1T1Serialization.cpp
++++ b/libmdr/src/Generated/ProtocolV1T1Serialization.cpp
+@@ -861,15 +861,15 @@ MDRResult<size_t> PlaybackControllerVolumeData::Read(const UInt8** ppSrcBuffer
+     MDRResult<size_t> PlaybackName::Write(const PlaybackName& data, UInt8** ppDstBuffer, size_t maxSize)
+     {
+         UInt8* ptr = *ppDstBuffer;
+-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.name, ppDstBuffer, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.nameStatus, ppDstBuffer, maxSize));
++        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.name, ppDstBuffer, maxSize));
+         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
+     }
+     MDRResult<size_t> PlaybackName::Read(const UInt8** ppSrcBuffer, PlaybackName& out, size_t maxSize)
+     {
+         const UInt8* ptr = *ppSrcBuffer;
+-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.name, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.nameStatus, maxSize));
++        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.name, maxSize));
+         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
+     }
+     MDRResult<size_t> PowerSavingModeParam::Write(const PowerSavingModeParam& data, UInt8** ppDstBuffer, size_t maxSize)
