@@ -1,0 +1,31 @@
+--- a/libmdr/src/Generated/ProtocolV1T1Serialization.cpp
++++ b/libmdr/src/Generated/ProtocolV1T1Serialization.cpp
+@@ -2600,7 +2600,12 @@ MDRResult<RetPlayParamPlaybackControllerNameData> RetPlayParamPlaybackControll
+         MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.playInquiredType, maxSize));
+         MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.dataType, maxSize));
+         MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName, maxSize));
+-        MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName2, maxSize));
++        // Local fix: on real WH-1000XM4 hardware, RET_PLAY_PARAM responses for
++        // TRACK_NAME/ALBUM_NAME/ARTIST_NAME only ever carry a single PlaybackName -
++        // playbackName2 is absent from the wire, not just empty. Treat it as optional
++        // instead of failing the whole response when no bytes are left.
++        if (maxSize > 0)
++            MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName2, maxSize));
+         MDR_TRY(RetPlayParamPlaybackControllerNameData, Validate(out));
+         return MDRResult<RetPlayParamPlaybackControllerNameData>::Success(std::move(out));
+     }
+--- a/libmdr/src/Generated/ProtocolV1T1Validation.cpp
++++ b/libmdr/src/Generated/ProtocolV1T1Validation.cpp
+@@ -2864,8 +2864,11 @@ MDRResult<void> RetPlayParamPlaybackControllerNameData::Validate(const RetPlay
+     MDR_VALIDATE(data.command == Command::PLAY_RET_PARAM);
+     MDR_VALIDATE(is_valid(data.playInquiredType));
+     MDR_VALIDATE(data.playInquiredType == PlayInquiredType::PLAYBACK_CONTROLLER);
++    // This response struct is shared by TRACK_NAME/ALBUM_NAME/ARTIST_NAME queries
++    // (same wire shape, discriminated only by the request), so pinning dataType to
++    // TRACK_NAME here rejects real ALBUM_NAME/ARTIST_NAME replies. Same over-constrained
++    // codegen pattern already fixed elsewhere (see libmdr-v2-connection-priority-validation.patch).
+     MDR_VALIDATE(is_valid(data.dataType));
+-    MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
+     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
+     MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
+     return MDRResult<void>::Success();

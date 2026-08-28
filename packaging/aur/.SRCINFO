@@ -1,7 +1,7 @@
 pkgbase = sony-headphones-linux
 	pkgdesc = Native Sony Sound Connect headphones service and CLI for Linux
 	pkgver = 0.2.3
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/VyomJain6904/sony-headphones-linux
 	install = sony-headphones-linux.install
 	arch = x86_64

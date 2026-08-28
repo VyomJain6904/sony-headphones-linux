@@ -1,0 +1,12 @@
+--- a/libmdr/src/Generated/ProtocolV1T1Validation.cpp
++++ b/libmdr/src/Generated/ProtocolV1T1Validation.cpp
+@@ -68,8 +68,7 @@ MDRResult<void> GetConnectionStatus::Validate(const GetConnectionStatus& data)
+ MDRResult<void> GetDeviceInfo::Validate(const GetDeviceInfo& data) {
+     MDR_VALIDATE(is_valid(data.command));
+     MDR_VALIDATE(data.command == Command::CONNECT_GET_DEVICE_INFO);
+-    MDR_VALIDATE(is_valid(data.inquiredType));
+-    MDR_VALIDATE(data.inquiredType == DeviceInfoInquiredType::SERIES_AND_COLOR_INFO);
++    MDR_VALIDATE(is_valid(data.inquiredType));
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> GetEqEbbCapability::Validate(const GetEqEbbCapability& data) {

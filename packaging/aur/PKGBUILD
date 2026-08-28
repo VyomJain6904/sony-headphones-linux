@@ -2,7 +2,7 @@
 
 pkgname=sony-headphones-linux
 pkgver=0.2.3
-pkgrel=1
+pkgrel=2
 pkgdesc="Native Sony Sound Connect headphones service and CLI for Linux"
 arch=('x86_64')
 url="https://github.com/VyomJain6904/sony-headphones-linux"
@@ -34,6 +34,16 @@ sha256sums=(
 prepare() {
   patch -d "SonyHeadphonesClient-${_libmdr_commit}" -p1 \
     < "${_source_dir}/patches/libmdr-v2-connection-priority-validation.patch"
+
+  patch -d "SonyHeadphonesClient-${_libmdr_commit}" -p1 \
+    < "${_source_dir}/patches/libmdr-v1-device-info-validation.patch"
+
+  patch -d "SonyHeadphonesClient-${_libmdr_commit}" -p1 \
+    < "${_source_dir}/patches/libmdr-v1-playback-name-field-order.patch"
+
+  patch -d "SonyHeadphonesClient-${_libmdr_commit}" -p1 \
+    < "${_source_dir}/patches/libmdr-v1-playback-name-optional-second-entry.patch"
+
   patch -d "fmt-${_fmt_commit}" -p1 \
     < "SonyHeadphonesClient-${_libmdr_commit}/contrib/fmt.patch"
 
