@@ -16,6 +16,7 @@ import { FaHeadphones } from "react-icons/fa";
 
 interface Battery { present: boolean; level: number; charging: string }
 interface Status {
+  schema_version: number;
   phase: string;
   connected: boolean;
   device: { name: string; model: string; firmware: string; codec: string };
@@ -30,7 +31,28 @@ interface Status {
 }
 
 const getStatus = callable<[], { ok: boolean; status: Status | null; error: string }>("status");
-const sendCommand = callable<[words: string[]], { ok: boolean; error: string }>("command");
+const rawSendCommand = callable<[words: string[]], { ok: boolean; error: string }>("command");
+
+/** Never rejects: a failed backend call (e.g. while Decky reloads) becomes an error result. */
+function sendCommand(words: string[]): Promise<{ ok: boolean; error: string }> {
+  return rawSendCommand(words).catch((e) => ({ ok: false, error: String(e) }));
+}
+
+const SCHEMA_VERSION = 1;
+
+/** Rejects status JSON this panel doesn't understand instead of crashing while rendering it. */
+function checkStatus(s: unknown): string {
+  const v = s as Partial<Status> | null;
+  if (!v || typeof v !== "object") return "The daemon sent no status";
+  if (v.schema_version !== SCHEMA_VERSION) {
+    return `Unsupported status schema ${String(v.schema_version)}; update this plugin`;
+  }
+  const ok = v.device && v.battery && ["main", "left", "right", "case"].every((k) =>
+      typeof (v.battery as Record<string, Battery | undefined>)[k] === "object")
+    && v.capabilities && v.noise && v.speak_to_chat && v.equalizer
+    && Array.isArray(v.equalizer.available_presets) && v.playback && v.connection;
+  return ok ? "" : "The daemon sent an incomplete status";
+}
 
 // ---- Labels (mirrors the upstream Model.js) ----------------------------------
 
@@ -57,6 +79,14 @@ function batteryText(b: Battery): string {
   return level;
 }
 
+/** Dropdown selection that falls back to an "Unknown" label for values not in the list. */
+function pick(options: { data: string }[], value: string) {
+  return {
+    selectedOption: options.some((o) => o.data === value) ? value : undefined,
+    strDefaultLabel: "Unknown",
+  };
+}
+
 // ---- Hooks -------------------------------------------------------------------
 
 const POLL_MS = 1000;
@@ -77,8 +107,9 @@ function useHeadphones(active: boolean) {
       try {
         const res = await getStatus();
         if (cancelled) return;
-        setStatus(res.status);
-        setError(res.ok ? "" : res.error);
+        const problem = res.ok ? checkStatus(res.status) : res.error;
+        setStatus(problem ? null : res.status);
+        setError(problem);
       } catch (e) {
         if (!cancelled) setError(String(e));
       }
@@ -140,6 +171,11 @@ function Controls({ status, run }: { status: Status; run: (w: string[]) => void 
     ...(caps.ambient_sound ? [{ data: "ambient", label: "Ambient sound" }] : []),
   ];
   const presets = status.equalizer.available_presets;
+  const presetOptions = presets.map((p) => ({ data: p, label: PRESETS[p] ?? p }));
+  const priorityOptions = [
+    { data: "quality", label: "Sound quality" },
+    { data: "stable", label: "Stable connection" },
+  ];
   const batteries = (["main", "left", "right", "case"] as const)
     .filter((k) => status.battery[k].present)
     .map((k) => ({ key: k, label: { main: "Battery", left: "Left", right: "Right", case: "Case" }[k] }));
@@ -163,7 +199,7 @@ function Controls({ status, run }: { status: Status; run: (w: string[]) => void 
             <DropdownItem
               label="Mode"
               rgOptions={noiseOptions}
-              selectedOption={status.noise.mode}
+              {...pick(noiseOptions, status.noise.mode)}
               onChange={(o) => run(["noise", o.data])}
             />
           </PanelSectionRow>
@@ -207,8 +243,8 @@ function Controls({ status, run }: { status: Status; run: (w: string[]) => void 
             <PanelSectionRow>
               <DropdownItem
                 label="Equalizer"
-                rgOptions={presets.map((p) => ({ data: p, label: PRESETS[p] ?? p }))}
-                selectedOption={status.equalizer.preset}
+                rgOptions={presetOptions}
+                {...pick(presetOptions, status.equalizer.preset)}
                 onChange={(o) => run(["eq-preset", o.data])}
               />
             </PanelSectionRow>
@@ -227,11 +263,8 @@ function Controls({ status, run }: { status: Status; run: (w: string[]) => void 
           <PanelSectionRow>
             <DropdownItem
               label="Priority"
-              rgOptions={[
-                { data: "quality", label: "Sound quality" },
-                { data: "stable", label: "Stable connection" },
-              ]}
-              selectedOption={status.connection.priority}
+              rgOptions={priorityOptions}
+              {...pick(priorityOptions, status.connection.priority)}
               onChange={(o) => run(["connection", o.data])}
             />
           </PanelSectionRow>
