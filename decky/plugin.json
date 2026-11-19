@@ -1,0 +1,11 @@
+{
+  "name": "Sony Headphones",
+  "author": "chesterfritz",
+  "flags": [],
+  "api_version": 1,
+  "publish": {
+    "tags": ["audio", "bluetooth"],
+    "description": "Control Sony headphones (noise cancelling, ambient, EQ, battery) via sony-headphones-linux.",
+    "image": ""
+  }
+}
