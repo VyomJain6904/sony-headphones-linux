@@ -61,6 +61,7 @@ function batteryText(b: Battery): string {
 
 const POLL_MS = 1000;
 const SETTLE_MS = 1500; // keep a just-set slider value until the device echoes it
+const COMMAND_ERROR_MS = 6000; // how long a failed command's message stays visible
 
 /** Holds the control session open and polls status only while the QAM is visible. */
 function useHeadphones(active: boolean) {
@@ -97,7 +98,7 @@ function useHeadphones(active: boolean) {
     };
   }, [active]);
 
-  return { status, error, setError };
+  return { status, error };
 }
 
 /** A slider value that follows the device but doesn't snap back mid-adjustment. */
@@ -242,15 +243,23 @@ function Controls({ status, run }: { status: Status; run: (w: string[]) => void 
 
 function Content() {
   const visible = useQuickAccessVisible();
-  const { status, error, setError } = useHeadphones(visible);
+  const { status, error } = useHeadphones(visible);
+  // Kept apart from the polled service error so the next status poll can't wipe it.
+  const [commandError, setCommandError] = useState("");
+
+  useEffect(() => {
+    if (!commandError) return;
+    const timer = setTimeout(() => setCommandError(""), COMMAND_ERROR_MS);
+    return () => clearTimeout(timer);
+  }, [commandError]);
 
   const run = useCallback((words: string[]) => {
-    sendCommand(words).then((res) => setError(res.ok ? "" : res.error));
-  }, [setError]);
+    sendCommand(words).then((res) => setCommandError(res.ok ? "" : res.error));
+  }, []);
 
   const ready = status?.connected && status.phase === "ready";
   const title = status?.device.model || status?.device.name || "Sony Headphones";
-  const shownError = error || status?.last_error || "";
+  const shownError = commandError || error || status?.last_error || "";
 
   return (
     <>

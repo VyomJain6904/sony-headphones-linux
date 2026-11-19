@@ -1,7 +1,7 @@
 """Decky backend: bridges the Quick Access panel to sony-headphonesd.
 
 Talks to the daemon's private Unix socket directly (same one-line protocol
-sony-headphonesctl uses) and reads the atomically published status.json.
+sony-headphonesctl uses), including for status, so a dead daemon is never shown as live.
 Runs as the Decky user (no "root" flag), so the daemon's 0700 dirs are reachable.
 """
 
@@ -21,14 +21,6 @@ _ALLOWED_VERBS = {
 }
 
 
-def _home() -> str:
-    return getattr(decky, "DECKY_USER_HOME", None) or os.path.expanduser("~")
-
-
-def _state_file() -> str:
-    return os.path.join(_home(), ".local", "state", "sony-headphones", "status.json")
-
-
 def _socket_path() -> str:
     # The daemon runs as a systemd --user service, so XDG_RUNTIME_DIR is /run/user/<uid>.
     # Decky's environment usually lacks XDG_RUNTIME_DIR, so derive it from our uid.
@@ -36,7 +28,7 @@ def _socket_path() -> str:
     return os.path.join(runtime, "sony-headphones", "daemon.sock")
 
 
-def _send_blocking(words: list[str]) -> dict:
+def _request(words: list[str]) -> str:
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
         sock.settimeout(3.0)
         sock.connect(_socket_path())
@@ -48,7 +40,11 @@ def _send_blocking(words: list[str]) -> dict:
             if not chunk:
                 break
             chunks.append(chunk)
-    response = b"".join(chunks).decode(errors="replace").strip()
+    return b"".join(chunks).decode(errors="replace").strip()
+
+
+def _send_blocking(words: list[str]) -> dict:
+    response = _request(words)
     if response == "ok" or response.startswith("ok "):
         return {"ok": True, "error": ""}
     if response.startswith("error "):
@@ -56,17 +52,28 @@ def _send_blocking(words: list[str]) -> dict:
     return {"ok": False, "error": "Malformed daemon response"}
 
 
+def _status_blocking() -> dict:
+    # Ask the daemon directly rather than reading status.json: a crashed daemon leaves
+    # that file behind, which would keep showing a stale "Connected" state.
+    response = _request(["status"])
+    if response.startswith("ok "):
+        return {"ok": True, "status": json.loads(response[3:]), "error": ""}
+    if response.startswith("error "):
+        return {"ok": False, "status": None, "error": response[6:]}
+    return {"ok": False, "status": None, "error": "Malformed daemon response"}
+
+
 class Plugin:
     async def status(self) -> dict:
         try:
-            with open(_state_file(), encoding="utf-8") as handle:
-                return {"ok": True, "status": json.load(handle), "error": ""}
-        except FileNotFoundError:
+            return await asyncio.to_thread(_status_blocking)
+        except (FileNotFoundError, ConnectionRefusedError):
+            return {"ok": False, "status": None, "error": "sony-headphonesd is not running"}
+        except ValueError as exc:
+            return {"ok": False, "status": None, "error": f"Invalid status from daemon: {exc}"}
+        except OSError as exc:
             return {"ok": False, "status": None,
-                    "error": "sony-headphonesd is not running (no status file)"}
-        except (OSError, ValueError) as exc:
-            # status.json is written atomically, so this is rare; the next poll recovers.
-            return {"ok": False, "status": None, "error": f"Could not read status: {exc}"}
+                    "error": f"Could not contact sony-headphonesd: {exc}"}
 
     async def command(self, words: list) -> dict:
         if (not isinstance(words, list) or not 1 <= len(words) <= 2
