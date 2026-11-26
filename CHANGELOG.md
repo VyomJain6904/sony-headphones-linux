@@ -4,6 +4,10 @@ All notable changes will be documented here. The format follows Keep a Changelog
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix MDR v1 headsets such as the WH-1000XM4 failing at connect with `Sony protocol poll failed: Malformed payload: Unable to serialize command`. Three reviewed libmdr patches correct v1 codegen errors: `GetDeviceInfo` rejected the `MODEL_NAME`/`FW_VERSION` requests sent by init, `PlaybackName` had its status/string order swapped plus a phantom second name and accepted only `TRACK_NAME` replies, and `PeripheralDeviceInfo` read the 17-byte Bluetooth address as a length-prefixed string.
+
 ## [0.2.3] - 2026-08-21
 
 ### Added

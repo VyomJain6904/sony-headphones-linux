@@ -1,0 +1,26 @@
+diff --git a/libmdr/include/mdr/ProtocolV1T1.hpp b/libmdr/include/mdr/ProtocolV1T1.hpp
+index 5e6b403..3af6061 100644
+--- a/libmdr/include/mdr/ProtocolV1T1.hpp
++++ b/libmdr/include/mdr/ProtocolV1T1.hpp
+@@ -1320,7 +1320,7 @@ namespace mdr::v1::t1
+     {
+         // CODEGEN EnumRange Command::CONNECT_GET_DEVICE_INFO
+         Command command{Command::CONNECT_GET_DEVICE_INFO}; // 0x0
+-        // CODEGEN EnumRange DeviceInfoInquiredType::SERIES_AND_COLOR_INFO
++        // CODEGEN EnumRange DeviceInfoInquiredType::MODEL_NAME DeviceInfoInquiredType::FW_VERSION DeviceInfoInquiredType::SERIES_AND_COLOR_INFO
+         DeviceInfoInquiredType inquiredType{DeviceInfoInquiredType::SERIES_AND_COLOR_INFO}; // 0x1
+ 
+         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetDeviceInfo);
+diff --git a/libmdr/src/Generated/ProtocolV1T1Validation.cpp b/libmdr/src/Generated/ProtocolV1T1Validation.cpp
+index f1b249e..2da9a56 100644
+--- a/libmdr/src/Generated/ProtocolV1T1Validation.cpp
++++ b/libmdr/src/Generated/ProtocolV1T1Validation.cpp
+@@ -69,7 +69,7 @@ MDRResult<void> GetDeviceInfo::Validate(const GetDeviceInfo& data) {
+     MDR_VALIDATE(is_valid(data.command));
+     MDR_VALIDATE(data.command == Command::CONNECT_GET_DEVICE_INFO);
+     MDR_VALIDATE(is_valid(data.inquiredType));
+-    MDR_VALIDATE(data.inquiredType == DeviceInfoInquiredType::SERIES_AND_COLOR_INFO);
++    MDR_VALIDATE(data.inquiredType == DeviceInfoInquiredType::MODEL_NAME || data.inquiredType == DeviceInfoInquiredType::FW_VERSION || data.inquiredType == DeviceInfoInquiredType::SERIES_AND_COLOR_INFO);
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> GetEqEbbCapability::Validate(const GetEqEbbCapability& data) {

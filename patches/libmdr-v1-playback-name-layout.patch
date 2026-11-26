@@ -1,0 +1,208 @@
+diff --git a/libmdr/include/mdr/ProtocolV1T1.hpp b/libmdr/include/mdr/ProtocolV1T1.hpp
+index 3af6061..8f1cc8e 100644
+--- a/libmdr/include/mdr/ProtocolV1T1.hpp
++++ b/libmdr/include/mdr/ProtocolV1T1.hpp
+@@ -3163,9 +3163,9 @@ namespace mdr::v1::t1
+     // THMSGV1T1PlaybackName
+     struct PlaybackName
+     {
+-        MDRPrefixedString name; // 0x0
+         // CODEGEN Ignore OUT_OF_RANGE is expected
+-        PlaybackNameStatus nameStatus{PlaybackNameStatus::UNSETTLED};
++        PlaybackNameStatus nameStatus{PlaybackNameStatus::UNSETTLED}; // 0x0
++        MDRPrefixedString name; // 0x1
+ 
+         MDR_DEFINE_EXTERN_READ_WRITE(PlaybackName);
+     };
+@@ -5835,10 +5835,9 @@ namespace mdr::v1::t1
+         Command command{Command::PLAY_NTFY_PARAM}; // 0x0
+         // CODEGEN EnumRange PlayInquiredType::PLAYBACK_CONTROLLER
+         PlayInquiredType playInquiredType{PlayInquiredType::PLAYBACK_CONTROLLER}; // 0x1
+-        // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
++        // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME PlaybackDetailedDataType::ALBUM_NAME PlaybackDetailedDataType::ARTIST_NAME
+         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x2
+         PlaybackName playbackName{}; // 0x3
+-        PlaybackName playbackName2{};
+ 
+         MDR_DEFINE_EXTERN_SERIALIZATION(NotifyPlayParamPlaybackControllerNameData);
+     };
+@@ -5897,7 +5896,6 @@ namespace mdr::v1::t1
+         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
+         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x0
+         PlaybackName playbackName{}; // 0x1
+-        PlaybackName playbackName2{};
+ 
+         MDR_DEFINE_EXTERN_READ_WRITE(PlaybackControllerNameData);
+     };
+@@ -6158,7 +6156,6 @@ namespace mdr::v1::t1
+         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
+         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x4
+         PlaybackName playbackName{}; // 0x5
+-        PlaybackName playbackName2{};
+ 
+         MDR_DEFINE_EXTERN_SERIALIZATION(RetPlayCapabilityPlaybackControllerNameData);
+     };
+@@ -6170,10 +6167,9 @@ namespace mdr::v1::t1
+         Command command{Command::PLAY_RET_PARAM}; // 0x0
+         // CODEGEN EnumRange PlayInquiredType::PLAYBACK_CONTROLLER
+         PlayInquiredType playInquiredType{PlayInquiredType::PLAYBACK_CONTROLLER}; // 0x1
+-        // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
++        // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME PlaybackDetailedDataType::ALBUM_NAME PlaybackDetailedDataType::ARTIST_NAME
+         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x2
+         PlaybackName playbackName{}; // 0x3
+-        PlaybackName playbackName2{};
+ 
+         MDR_DEFINE_EXTERN_SERIALIZATION(RetPlayParamPlaybackControllerNameData);
+     };
+@@ -6459,7 +6455,6 @@ namespace mdr::v1::t1
+         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
+         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x2
+         PlaybackName playbackName{}; // 0x3
+-        PlaybackName playbackName2{};
+ 
+         MDR_DEFINE_EXTERN_SERIALIZATION(SetPlayParamPlaybackControllerNameData);
+     };
+diff --git a/libmdr/src/Generated/ProtocolV1T1Serialization.cpp b/libmdr/src/Generated/ProtocolV1T1Serialization.cpp
+index e884733..84a8a95 100644
+--- a/libmdr/src/Generated/ProtocolV1T1Serialization.cpp
++++ b/libmdr/src/Generated/ProtocolV1T1Serialization.cpp
+@@ -861,15 +861,15 @@ namespace mdr::v1::t1 {
+     MDRResult<size_t> PlaybackName::Write(const PlaybackName& data, UInt8** ppDstBuffer, size_t maxSize)
+     {
+         UInt8* ptr = *ppDstBuffer;
+-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.name, ppDstBuffer, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.nameStatus, ppDstBuffer, maxSize));
++        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.name, ppDstBuffer, maxSize));
+         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
+     }
+     MDRResult<size_t> PlaybackName::Read(const UInt8** ppSrcBuffer, PlaybackName& out, size_t maxSize)
+     {
+         const UInt8* ptr = *ppSrcBuffer;
+-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.name, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.nameStatus, maxSize));
++        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.name, maxSize));
+         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
+     }
+     MDRResult<size_t> PowerSavingModeParam::Write(const PowerSavingModeParam& data, UInt8** ppDstBuffer, size_t maxSize)
+@@ -2178,7 +2178,6 @@ namespace mdr::v1::t1 {
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.playInquiredType, &ptr, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataType, &ptr, maxSize));
+         MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName, &ptr, maxSize));
+-        MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName2, &ptr, maxSize));
+         return MDRResult<size_t>::Success(ptr - out);
+     }
+     MDRResult<NotifyPlayParamPlaybackControllerNameData> NotifyPlayParamPlaybackControllerNameData::Deserialize(const UInt8* data, size_t maxSize)
+@@ -2188,7 +2187,6 @@ namespace mdr::v1::t1 {
+         MDR_TRY_SIZE(NotifyPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.playInquiredType, maxSize));
+         MDR_TRY_SIZE(NotifyPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.dataType, maxSize));
+         MDR_TRY_SIZE(NotifyPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName, maxSize));
+-        MDR_TRY_SIZE(NotifyPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName2, maxSize));
+         MDR_TRY(NotifyPlayParamPlaybackControllerNameData, Validate(out));
+         return MDRResult<NotifyPlayParamPlaybackControllerNameData>::Success(std::move(out));
+     }
+@@ -2269,7 +2267,6 @@ namespace mdr::v1::t1 {
+         UInt8* ptr = *ppDstBuffer;
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataType, ppDstBuffer, maxSize));
+         MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName, ppDstBuffer, maxSize));
+-        MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName2, ppDstBuffer, maxSize));
+         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
+     }
+     MDRResult<size_t> PlaybackControllerNameData::Read(const UInt8** ppSrcBuffer, PlaybackControllerNameData& out, size_t maxSize)
+@@ -2277,7 +2274,6 @@ namespace mdr::v1::t1 {
+         const UInt8* ptr = *ppSrcBuffer;
+         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.dataType, maxSize));
+         MDR_TRY_SIZE(size_t, (PlaybackName::Read)(ppSrcBuffer, out.playbackName, maxSize));
+-        MDR_TRY_SIZE(size_t, (PlaybackName::Read)(ppSrcBuffer, out.playbackName2, maxSize));
+         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
+     }
+     MDRResult<size_t> RetAudioCapability::Serialize(const RetAudioCapability& data, UInt8* out, size_t maxSize)
+@@ -2566,7 +2562,6 @@ namespace mdr::v1::t1 {
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.playbackControlType, &ptr, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataType, &ptr, maxSize));
+         MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName, &ptr, maxSize));
+-        MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName2, &ptr, maxSize));
+         return MDRResult<size_t>::Success(ptr - out);
+     }
+     MDRResult<RetPlayCapabilityPlaybackControllerNameData> RetPlayCapabilityPlaybackControllerNameData::Deserialize(const UInt8* data, size_t maxSize)
+@@ -2578,7 +2573,6 @@ namespace mdr::v1::t1 {
+         MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, MDRPod::Read(&data, out.playbackControlType, maxSize));
+         MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, MDRPod::Read(&data, out.dataType, maxSize));
+         MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName, maxSize));
+-        MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName2, maxSize));
+         MDR_TRY(RetPlayCapabilityPlaybackControllerNameData, Validate(out));
+         return MDRResult<RetPlayCapabilityPlaybackControllerNameData>::Success(std::move(out));
+     }
+@@ -2590,7 +2584,6 @@ namespace mdr::v1::t1 {
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.playInquiredType, &ptr, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataType, &ptr, maxSize));
+         MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName, &ptr, maxSize));
+-        MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName2, &ptr, maxSize));
+         return MDRResult<size_t>::Success(ptr - out);
+     }
+     MDRResult<RetPlayParamPlaybackControllerNameData> RetPlayParamPlaybackControllerNameData::Deserialize(const UInt8* data, size_t maxSize)
+@@ -2600,7 +2593,6 @@ namespace mdr::v1::t1 {
+         MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.playInquiredType, maxSize));
+         MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.dataType, maxSize));
+         MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName, maxSize));
+-        MDR_TRY_SIZE(RetPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName2, maxSize));
+         MDR_TRY(RetPlayParamPlaybackControllerNameData, Validate(out));
+         return MDRResult<RetPlayParamPlaybackControllerNameData>::Success(std::move(out));
+     }
+@@ -2936,7 +2928,6 @@ namespace mdr::v1::t1 {
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataType, &ptr, maxSize));
+         MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName, &ptr, maxSize));
+-        MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName2, &ptr, maxSize));
+         return MDRResult<size_t>::Success(ptr - out);
+     }
+     MDRResult<SetPlayParamPlaybackControllerNameData> SetPlayParamPlaybackControllerNameData::Deserialize(const UInt8* data, size_t maxSize)
+@@ -2946,7 +2937,6 @@ namespace mdr::v1::t1 {
+         MDR_TRY_SIZE(SetPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.type, maxSize));
+         MDR_TRY_SIZE(SetPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.dataType, maxSize));
+         MDR_TRY_SIZE(SetPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName, maxSize));
+-        MDR_TRY_SIZE(SetPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName2, maxSize));
+         MDR_TRY(SetPlayParamPlaybackControllerNameData, Validate(out));
+         return MDRResult<SetPlayParamPlaybackControllerNameData>::Success(std::move(out));
+     }
+diff --git a/libmdr/src/Generated/ProtocolV1T1Validation.cpp b/libmdr/src/Generated/ProtocolV1T1Validation.cpp
+index 2da9a56..02a65a4 100644
+--- a/libmdr/src/Generated/ProtocolV1T1Validation.cpp
++++ b/libmdr/src/Generated/ProtocolV1T1Validation.cpp
+@@ -2632,9 +2632,8 @@ MDRResult<void> NotifyPlayParamPlaybackControllerNameData::Validate(const Notify
+     MDR_VALIDATE(is_valid(data.playInquiredType));
+     MDR_VALIDATE(data.playInquiredType == PlayInquiredType::PLAYBACK_CONTROLLER);
+     MDR_VALIDATE(is_valid(data.dataType));
+-    MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
++    MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME || data.dataType == PlaybackDetailedDataType::ALBUM_NAME || data.dataType == PlaybackDetailedDataType::ARTIST_NAME);
+     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
+-    MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> NotifySportsExParamTrainingModeExParam::Validate(const NotifySportsExParamTrainingModeExParam& data) {
+@@ -2856,7 +2855,6 @@ MDRResult<void> RetPlayCapabilityPlaybackControllerNameData::Validate(const RetP
+     MDR_VALIDATE(is_valid(data.dataType));
+     MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
+     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
+-    MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> RetPlayParamPlaybackControllerNameData::Validate(const RetPlayParamPlaybackControllerNameData& data) {
+@@ -2865,9 +2863,8 @@ MDRResult<void> RetPlayParamPlaybackControllerNameData::Validate(const RetPlayPa
+     MDR_VALIDATE(is_valid(data.playInquiredType));
+     MDR_VALIDATE(data.playInquiredType == PlayInquiredType::PLAYBACK_CONTROLLER);
+     MDR_VALIDATE(is_valid(data.dataType));
+-    MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
++    MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME || data.dataType == PlaybackDetailedDataType::ALBUM_NAME || data.dataType == PlaybackDetailedDataType::ARTIST_NAME);
+     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
+-    MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> RetSportsCapability::Validate(const RetSportsCapability& data) {
+@@ -3071,7 +3068,6 @@ MDRResult<void> SetPlayParamPlaybackControllerNameData::Validate(const SetPlayPa
+     MDR_VALIDATE(is_valid(data.dataType));
+     MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
+     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
+-    MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
+     return MDRResult<void>::Success();
+ }
+ MDRResult<void> SetSportsParam::Validate(const SetSportsParam& data) {

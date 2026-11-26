@@ -34,6 +34,12 @@ sha256sums=(
 prepare() {
   patch -d "SonyHeadphonesClient-${_libmdr_commit}" -p1 \
     < "${_source_dir}/patches/libmdr-v2-connection-priority-validation.patch"
+  patch -d "SonyHeadphonesClient-${_libmdr_commit}" -p1 \
+    < "${_source_dir}/patches/libmdr-v1-device-info-validation.patch"
+  patch -d "SonyHeadphonesClient-${_libmdr_commit}" -p1 \
+    < "${_source_dir}/patches/libmdr-v1-playback-name-layout.patch"
+  patch -d "SonyHeadphonesClient-${_libmdr_commit}" -p1 \
+    < "${_source_dir}/patches/libmdr-v1-peripheral-device-address.patch"
   patch -d "fmt-${_fmt_commit}" -p1 \
     < "SonyHeadphonesClient-${_libmdr_commit}/contrib/fmt.patch"
 

@@ -1,0 +1,48 @@
+diff --git a/libmdr/include/mdr/ProtocolV1T2.hpp b/libmdr/include/mdr/ProtocolV1T2.hpp
+index ab24da3..670740f 100644
+--- a/libmdr/include/mdr/ProtocolV1T2.hpp
++++ b/libmdr/include/mdr/ProtocolV1T2.hpp
+@@ -356,7 +356,7 @@ namespace mdr::v1::t2
+     // THMSGV1T2PeripheralDeviceInfo
+     struct PeripheralDeviceInfo
+     {
+-        MDRPrefixedString btDeviceAddress; // 0x0
++        Array<UInt8, 17> btDeviceAddress; // 0x0
+         UInt8 connectedStatus{};
+         MDRPrefixedString btFriendlyName;
+ 
+diff --git a/libmdr/src/Generated/ProtocolV1T2Serialization.cpp b/libmdr/src/Generated/ProtocolV1T2Serialization.cpp
+index a9a5f16..0abe4b8 100644
+--- a/libmdr/src/Generated/ProtocolV1T2Serialization.cpp
++++ b/libmdr/src/Generated/ProtocolV1T2Serialization.cpp
+@@ -37,7 +37,7 @@ namespace mdr::v1::t2 {
+     MDRResult<size_t> PeripheralDeviceInfo::Write(const PeripheralDeviceInfo& data, UInt8** ppDstBuffer, size_t maxSize)
+     {
+         UInt8* ptr = *ppDstBuffer;
+-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btDeviceAddress, ppDstBuffer, maxSize));
++        MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, ppDstBuffer, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Write(data.connectedStatus, ppDstBuffer, maxSize));
+         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btFriendlyName, ppDstBuffer, maxSize));
+         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
+@@ -45,7 +45,7 @@ namespace mdr::v1::t2 {
+     MDRResult<size_t> PeripheralDeviceInfo::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfo& out, size_t maxSize)
+     {
+         const UInt8* ptr = *ppSrcBuffer;
+-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.btDeviceAddress, maxSize));
++        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize));
+         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize));
+         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.btFriendlyName, maxSize));
+         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
+diff --git a/libmdr/src/HeadphonesV1T2.cpp b/libmdr/src/HeadphonesV1T2.cpp
+index 54452f6..2e88a32 100644
+--- a/libmdr/src/HeadphonesV1T2.cpp
++++ b/libmdr/src/HeadphonesV1T2.cpp
+@@ -15,7 +15,7 @@ namespace mdr
+             for (const auto& device : payload.deviceInfo)
+             {
+                 MDRHeadphones::PeripheralDevice state{
+-                    .macAddress = device.btDeviceAddress.value,
++                    .macAddress = {device.btDeviceAddress.begin(), device.btDeviceAddress.end()},
+                     .name = device.btFriendlyName.value,
+                     .connected = device.connectedStatus != 0,
+                     .playbackDevice = device.connectedStatus == payload.playbackrightDevice
