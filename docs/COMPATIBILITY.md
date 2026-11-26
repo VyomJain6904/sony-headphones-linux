@@ -10,6 +10,7 @@ Controls are exposed from discovered capabilities, not a model allowlist. The na
 
 | Model | Firmware | Transport | Protocol | Read tests | Write tests | Status |
 |---|---|---|---|---|---|---|
+| WH-1000XM4 | 2.5.0 | Classic RFCOMM | MDR v1 | Identity, firmware, AAC codec, main battery, noise/ambient/focus, current EQ, playback status/volume | ANC → ambient → ANC (restored) | Hardware smoke pass on 2026-11-26 with the v1 libmdr patches |
 | WH-1000XM5 | 2.5.1 | Classic RFCOMM | MDR v2 | Identity, firmware, LDAC codec, main battery, capabilities, noise/ambient/focus, Speak-to-Chat, current EQ/DSEE, playback/volume, connection priority | ANC/ambient, ambient level, focus on voice, Speak-to-Chat, DSEE, play/pause, normalized volume, quality/stability; every changed setting restored | Hardware-alpha pass on 2026-08-19 |
 
 Do not add a green/supported row without recording the firmware and actual read/write results.
@@ -35,6 +36,14 @@ The current libmdr C ABI reports equalizer capability and the active preset but 
 The v0.2.2 publication work and v0.2.3 source-installer safety repair do not add device evidence or broaden compatibility. They use the same WH-1000XM5 firmware 2.5.1 verification recorded above.
 
 Panel close released RFCOMM after the 15-second idle deadline, and panel reopen synchronized again. Daemon restart and Omarchy shell restart also recovered. Sleep/resume, BlueZ restart, multipoint actions, shutdown, pairing, and long-duration soak behavior were not tested.
+
+## WH-1000XM4 test notes
+
+Environment: Omarchy, WH-1000XM4 firmware 2.5.0, AAC active, pinned libmdr commit `db0ae2574d8f8e1407e8ea28a7ee87db9dde1c24` plus the reviewed v2 connection-priority patch and the three v1 patches listed in `THIRD_PARTY.md`.
+
+Before the v1 patches, every connect attempt ended in `Malformed payload`, first while serializing `GetDeviceInfo(MODEL_NAME)`, then while parsing the playback-name and paired-device replies. Captured replies: track name `a7 01 00 02 00` (status `SETTLED`, empty string) and paired devices `[17-byte ASCII address][status][prefixed name]`.
+
+With the patches, the panel reached `ready` and read model, firmware, codec, battery, noise mode, EQ preset, and playback state. The reversible write `ANC → ambient → ANC` was re-read from the device each time. A second setting sent while the previous commit was still in flight was not applied. That is existing daemon behavior and is unrelated to these patches. Other writes, multipoint, sleep/resume, and soak behavior were not tested.
 
 ## Excluded even when a device supports it
 

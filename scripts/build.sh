@@ -44,19 +44,24 @@ if [ "$with_libmdr" -eq 1 ]; then
     printf 'libmdr source is not at the reviewed commit: %s\n' "$actual_libmdr_commit" >&2
     exit 1
   fi
-  libmdr_patch="$project_dir/patches/libmdr-v2-connection-priority-validation.patch"
-  if [ ! -f "$libmdr_patch" ]; then
-    printf 'Required reviewed libmdr patch is missing: %s\n' "$libmdr_patch" >&2
-    exit 1
-  fi
-  if git -C "$libmdr_source" apply --reverse --check "$libmdr_patch" >/dev/null 2>&1; then
-    : # Already applied in this working tree.
-  elif git -C "$libmdr_source" apply --check "$libmdr_patch"; then
-    git -C "$libmdr_source" apply "$libmdr_patch"
-  else
-    printf 'Reviewed libmdr patch does not apply cleanly to %s\n' "$LIBMDR_COMMIT" >&2
-    exit 1
-  fi
+  for libmdr_patch in \
+    "$project_dir/patches/libmdr-v2-connection-priority-validation.patch" \
+    "$project_dir/patches/libmdr-v1-device-info-validation.patch" \
+    "$project_dir/patches/libmdr-v1-playback-name-layout.patch" \
+    "$project_dir/patches/libmdr-v1-peripheral-device-address.patch"; do
+    if [ ! -f "$libmdr_patch" ]; then
+      printf 'Required reviewed libmdr patch is missing: %s\n' "$libmdr_patch" >&2
+      exit 1
+    fi
+    if git -C "$libmdr_source" apply --reverse --check "$libmdr_patch" >/dev/null 2>&1; then
+      : # Already applied in this working tree.
+    elif git -C "$libmdr_source" apply --check "$libmdr_patch"; then
+      git -C "$libmdr_source" apply "$libmdr_patch"
+    else
+      printf 'Reviewed libmdr patch %s does not apply cleanly to %s\n' "$libmdr_patch" "$LIBMDR_COMMIT" >&2
+      exit 1
+    fi
+  done
   git -C "$libmdr_source" diff --check
   fmt_source="$("$script_dir/fetch-fmt.sh" | tail -n 1)"
   actual_fmt_commit="$(git -C "$fmt_source" rev-parse HEAD)"
